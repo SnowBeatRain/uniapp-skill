@@ -1,0 +1,456 @@
+---
+name: uniapp-skill
+description: Use this skill for any uni-app (uniapp) development task. Trigger whenever the user mentions uni-app, uniapp, HBuilderX, DCloud, 跨端开发, 小程序, 多端, pages.json, manifest.json, uni.request, uni.navigateTo, easycom, nvue, uts, or asks to build/debug/configure a project that targets WeChat Mini-Program, H5, App, Alipay, ByteDance, QQ, or other platforms via uni-app. Also use for questions about conditional compilation (#ifdef), uniCloud, uni-ui components, pinia in uniapp, or uniapp project structure. When in doubt, use this skill — it's better to have the context than not.
+---
+
+# uni-app 完整开发技能指南
+
+uni-app 是使用 Vue.js 开发所有前端应用的框架，一套代码发布到 iOS、Android、Web（H5）及各种小程序（微信/支付宝/百度/抖音/QQ/快手/飞书等）和鸿蒙。
+
+**官方文档：** https://uniapp.dcloud.net.cn/
+
+---
+
+## 第一部分：学习路径规划
+
+### 阶段一：环境与基础（1-2 天）
+
+- 安装 HBuilderX（App 开发版），或 CLI（`npx degit dcloudio/uni-preset-vue#vite my-project`，需 Node 18+）
+- 创建项目，运行到浏览器
+- 重点学习：项目结构、`pages.json`、`manifest.json`
+- 参考：`references/project-setup.md`、`references/pages-config.md`
+
+### 阶段二：核心概念（3-5 天）
+
+- Vue3 Composition API（`<script setup>`、`ref`、`reactive`、`computed`、`watch`）
+- 页面生命周期：`onLoad` → `onShow` → `onReady`
+- 路由导航 + 页面传参 + 事件通信（`uni.$emit/$on`）
+- 条件编译：`#ifdef` / `#ifndef`
+- 参考：`references/lifecycle.md`、`references/conditional-compilation.md`、`references/vue3-patterns.md`
+
+### 阶段三：项目实战（5-10 天）
+
+- 完整功能应用：登录、列表（CRUD）、详情、个人中心
+- Pinia 状态管理 + 持久化
+- 网络请求封装（`uni.request` + 拦截器）
+- easycom + uni-ui 组件化开发
+- H5 + 微信小程序双端调试
+- 参考：`references/api.md`、`references/components.md`、`references/more-components.md`
+
+### 阶段四：进阶能力（按需）
+
+- App 原生：OAuth、支付、推送、分享 → `references/app-native.md`
+- 云服务：uniCloud、UniPush、uni 统计、一键登录 → `references/cloud-services.md`
+- 高级渲染：nvue、RenderJS、SSR → `references/advanced-features.md`
+- 媒体 API：图片/视频/音频/录音/文件 → `references/media-file-api.md`
+- 系统 API：蓝牙/传感器/动画/TabBar/键盘 → `references/system-device-api.md`
+- 原生配置：Android/iOS/鸿蒙权限与资源 → `references/native-resources.md`
+- 性能优化、国际化、暗黑模式、TypeScript → `references/advanced-features.md`
+
+---
+
+## 第二部分：项目搭建
+
+详见 `references/project-setup.md`。
+
+### 项目结构
+
+```
+├─ pages/                  页面（必须在 pages.json 注册）
+├─ static/                 静态资源（不编译，原样拷贝）
+│  └─ app-plus/            App 专属资源（条件编译目录）
+├─ components/             组件（easycom: comp-name/comp-name.vue 自动引入）
+├─ composables/            组合式函数
+├─ store/                  Pinia 状态管理
+├─ utils/                  工具函数
+├─ uni_modules/            插件市场插件
+├─ nativeResources/        原生资源（Android/iOS 配置）
+├─ App.vue                 应用入口（全局生命周期/样式，无 template）
+├─ main.js                 Vue 初始化（createSSRApp + Pinia）
+├─ manifest.json           应用配置（appid、各平台设置）
+├─ pages.json              路由（页面注册、tabBar、globalStyle、easycom）
+└─ uni.scss                全局 SCSS 变量（自动注入，无需 import）
+```
+
+### pages.json 核心配置
+
+```json
+{
+  "globalStyle": {
+    "navigationBarTitleText": "App",
+    "navigationBarBackgroundColor": "#007AFF",
+    "navigationBarTextStyle": "white"
+  },
+  "pages": [
+    { "path": "pages/index/index", "style": { "navigationBarTitleText": "首页" } }
+  ],
+  "tabBar": {
+    "color": "#7A7E83", "selectedColor": "#007AFF",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "首页", "iconPath": "static/tab/home.png", "selectedIconPath": "static/tab/home-active.png" }
+    ]
+  },
+  "subPackages": [{ "root": "subpkg", "pages": [{ "path": "detail/detail" }] }],
+  "preloadRule": { "pages/index/index": { "network": "all", "packages": ["subpkg"] } },
+  "easycom": { "autoscan": true, "custom": { "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue" } }
+}
+```
+
+详细字段见 `references/pages-config.md`。
+
+---
+
+## 第三部分：核心功能实现
+
+### 3.1 生命周期（`references/lifecycle.md`）
+
+```vue
+<script setup>
+import { onLoad, onShow, onReady, onPullDownRefresh, onReachBottom, onShareAppMessage, onBackPress } from '@dcloudio/uni-app'
+import { ref, onMounted } from 'vue'
+
+// 页面生命周期
+onLoad((options) => { /* 接收参数，仅一次 */ })
+onShow(() => { /* 每次显示（含返回） */ })
+onReady(() => { /* DOM 可用 */ })
+onPullDownRefresh(async () => { await refresh(); uni.stopPullDownRefresh() })
+onReachBottom(() => { /* 触底加载 */ })
+onShareAppMessage(() => ({ title: '分享', path: '/pages/index/index' }))
+onBackPress(({ from }) => { return false /* true 阻止返回 */ })
+
+// 注意：组件中只能用 Vue 钩子（onMounted 等），不能用 onLoad/onShow
+</script>
+```
+
+**App.vue**：`onLaunch`（全局初始化）→ `onShow`（前台）→ `onHide`（后台）→ `onError`（全局错误）
+
+**顺序**：`onLoad` → `onShow` → `onReady` | 返回：B `onUnload` → A `onShow`
+
+### 3.2 路由导航与页面通信
+
+```js
+uni.navigateTo({ url: '/pages/detail/detail?id=1' })   // 新页面（最多10层）
+uni.redirectTo({ url: '/pages/login/login' })            // 替换当前
+uni.switchTab({ url: '/pages/home/home' })               // tabBar 页必须用此方法
+uni.reLaunch({ url: '/pages/index/index' })              // 关闭所有重开
+uni.navigateBack({ delta: 1 })
+
+// EventChannel 页面通信
+uni.navigateTo({
+  url: '/pages/child/child',
+  events: { result: (data) => console.log(data) },
+  success: (res) => res.eventChannel.emit('init', { msg: 'hi' })
+})
+
+// 全局事件
+uni.$emit('refresh', data)
+uni.$on('refresh', handler)
+uni.$off('refresh', handler)  // 页面卸载时务必移除
+```
+
+### 3.3 状态管理 Pinia
+
+```js
+// store/user.js
+import { defineStore } from 'pinia'
+export const useUserStore = defineStore('user', {
+  state: () => ({
+    token: uni.getStorageSync('token') || '',
+    userInfo: uni.getStorageSync('userInfo') || {}
+  }),
+  getters: { isLogin: (s) => !!s.token },
+  actions: {
+    setLogin(token, info) {
+      this.token = token; this.userInfo = info
+      uni.setStorageSync('token', token)
+      uni.setStorageSync('userInfo', info)
+    },
+    logout() {
+      this.token = ''; this.userInfo = {}
+      uni.removeStorageSync('token'); uni.removeStorageSync('userInfo')
+      uni.reLaunch({ url: '/pages/login/login' })
+    }
+  }
+})
+```
+
+### 3.4 网络请求（`references/api.md`）
+
+```js
+// 全局拦截器（推荐在 App.vue onLaunch 中设置）
+uni.addInterceptor('request', {
+  invoke(args) {
+    if (!args.url.startsWith('http')) args.url = 'https://api.example.com' + args.url
+    args.header = { ...args.header, Authorization: `Bearer ${uni.getStorageSync('token')}` }
+  },
+  success(res) { if (res.data?.code === 401) uni.reLaunch({ url: '/pages/login/login' }) },
+  fail() { uni.showToast({ title: '网络异常', icon: 'none' }) }
+})
+
+// 路由守卫
+uni.addInterceptor('navigateTo', {
+  invoke(args) {
+    if (!uni.getStorageSync('token') && args.url.includes('/pages/mine/')) {
+      uni.navigateTo({ url: '/pages/login/login' }); return false
+    }
+  }
+})
+
+// 发起请求（全平台，勿用 axios）
+const [err, res] = await uni.request({ url: '/api/list', method: 'GET', data: { page: 1 } })
+```
+
+### 3.5 CRUD 完整示例
+
+```vue
+<template>
+  <view class="container">
+    <uni-search-bar v-model="keyword" @confirm="onSearch" placeholder="搜索" />
+    <scroll-view scroll-y style="flex:1" @scrolltolower="loadMore" refresher-enabled :refresher-triggered="refreshing" @refresherrefresh="onRefresh">
+      <uni-list>
+        <uni-swipe-action-item v-for="item in list" :key="item.id" :right-options="[{ text: '删除', style: { backgroundColor: '#dd524d' } }]" @click="deleteItem(item.id)">
+          <uni-list-item :title="item.name" :note="item.desc" clickable @click="goDetail(item.id)" />
+        </uni-swipe-action-item>
+      </uni-list>
+      <uni-load-more :status="loadStatus" />
+    </scroll-view>
+    <uni-fab :pattern="{ backgroundColor: '#007AFF' }" @fabClick="addItem" />
+  </view>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
+
+const list = ref([])
+const page = ref(1)
+const loadStatus = ref('more')  // more | loading | noMore
+const refreshing = ref(false)
+const keyword = ref('')
+
+const fetchList = async (reset = false) => {
+  if (reset) { page.value = 1; loadStatus.value = 'more' }
+  loadStatus.value = 'loading'
+  const [err, res] = await uni.request({ url: '/api/items', data: { page: page.value, keyword: keyword.value } })
+  if (!err) {
+    const items = res.data.data
+    list.value = reset ? items : [...list.value, ...items]
+    loadStatus.value = items.length < 20 ? 'noMore' : 'more'
+    page.value++
+  }
+}
+
+const onRefresh = async () => { refreshing.value = true; await fetchList(true); refreshing.value = false }
+const loadMore = () => { if (loadStatus.value === 'more') fetchList() }
+const onSearch = () => fetchList(true)
+const goDetail = (id) => uni.navigateTo({ url: `/pages/detail/detail?id=${id}` })
+
+const addItem = async () => {
+  // 跳转到新增页面或弹窗
+  uni.navigateTo({ url: '/pages/form/form' })
+}
+
+const deleteItem = async (id) => {
+  const { confirm } = await uni.showModal({ title: '提示', content: '确认删除？' })
+  if (!confirm) return
+  await uni.request({ url: `/api/items/${id}`, method: 'DELETE' })
+  uni.showToast({ title: '已删除' })
+  list.value = list.value.filter(i => i.id !== id)
+}
+
+onLoad(() => fetchList(true))
+</script>
+
+<style scoped>
+.container { display: flex; flex-direction: column; height: 100vh; }
+</style>
+```
+
+### 3.6 条件编译（`references/conditional-compilation.md`）
+
+```js
+// #ifdef MP-WEIXIN       仅微信
+// #endif
+// #ifndef H5             非 H5
+// #endif
+// #ifdef APP-PLUS || H5  App 或 H5（多平台用 ||，不支持 &&）
+// #endif
+```
+
+标识符：`APP-PLUS` `APP-ANDROID` `APP-IOS` `H5` `MP-WEIXIN` `MP-ALIPAY` `MP-BAIDU` `MP-TOUTIAO` `MP-QQ` `MP`
+静态资源：`static/app-plus/` `static/mp-weixin/` `static/h5/`
+
+### 3.7 样式要点
+
+```css
+/* rpx：750rpx = 屏幕宽度（推荐） | px：固定像素（边框等） */
+/* 不推荐 rem/em/vw/vh（小程序兼容差） */
+page { background-color: #f5f5f5; }     /* 页面根节点用 page，非 body */
+
+/* rpx 换算：元素 rpx = 750 × 设计稿元素 px ÷ 设计稿宽度 px */
+/* 例：375px 设计稿中 200px → 750 × 200 ÷ 375 = 400rpx */
+```
+
+- App/H5 支持全部 CSS；小程序不支持 `*` / `body` 选择器
+- nvue 只支持 flex + class 选择器，默认 `flex-direction: column`
+- 全局样式写 `App.vue <style>`（无 scoped）
+- CSS 预处理器：less / sass / scss / stylus（Vue3 默认 dart-sass）
+
+---
+
+## 第四部分：调试与发布
+
+详见 `references/debug-publish.md`。
+
+| 平台 | 运行命令 | 调试工具 |
+|------|----------|----------|
+| H5 | `npm run dev:h5` | Chrome DevTools |
+| 微信 | `npm run dev:mp-weixin` | 微信开发者工具 |
+| 支付宝 | `npm run dev:mp-alipay` | 支付宝小程序开发者工具 |
+| App | HBuilderX 运行到手机 | HBuilderX 控制台调试窗口 |
+
+| 发布平台 | 构建命令 | 关键注意 |
+|----------|----------|----------|
+| H5 | `npm run build:h5` | 配 publicPath、router.base |
+| 微信 | `npm run build:mp-weixin` | 主包 ≤ 2MB，善用分包 |
+| App | 云打包 / 安心打包 | 配签名证书，安心打包更安全更快 |
+
+**调试技巧**：`condition` 配置直接启动到指定页面；`console.log` 直接输出到 HBuilderX 控制台
+
+---
+
+## 第五部分：避坑指南
+
+详见 `references/pitfalls.md`。
+
+| 问题 | 正确做法 |
+|------|----------|
+| 用 axios 发请求 | 用 `uni.request`（axios 依赖 XMLHttpRequest，小程序/App 不支持） |
+| navigateTo 跳 tabBar 页 | 用 `uni.switchTab()` |
+| 背景图用本地路径 | 小程序不支持，用网络 URL 或 base64 |
+| 组件内用 onLoad/onShow | 组件只能用 Vue 钩子（onMounted 等） |
+| 条件编译用 && | 不支持，多平台用 `\|\|` |
+| navigateTo 超 10 层 | 用 `redirectTo` 或 `reLaunch` |
+| 静态资源过大 | 主包 ≤ 2MB，图片上 CDN，善用 subPackages |
+| nvue 用 v-show | nvue 不支持，只能用 v-if |
+| H5 跨域报错 | App/小程序无此问题；H5 用后端 CORS 头或云函数代理 |
+| Vue.prototype 挂全局 | Vue3 用 `app.config.globalProperties` 或 Pinia |
+
+---
+
+## 第六部分：进阶功能速查
+
+### Vue3 深入（`references/vue3-patterns.md`）
+
+- Composition API + `<script setup>` + 组合式函数（composables）
+- 组件通信：Props/Emits、v-model、provide/inject、插槽
+- Vue2 → Vue3：`new Vue()` → `createSSRApp()`、`VUE_APP_*` → `VITE_*`
+
+### 高级功能（`references/advanced-features.md`）
+
+- **nvue**：原生渲染，`<list>`/`<waterfall>` 自动回收内存
+- **RenderJS**：视图层 JS，60fps（echarts/three.js），App-vue + H5
+- **i18n**：vue-i18n + pages.json `%key%` 语法
+- **暗黑模式**：theme.json + CSS @media + `onThemeChange`
+- **TypeScript**：`@dcloudio/types` + `lang="ts"`
+- **环境变量**：Vue3 `.env` → `VITE_*` / Vue2 → `VUE_APP_*`
+- **性能**：减少响应式数据、长列表用 list 组件、renderjs 避通信延迟、组件拆分细粒度更新
+- **SSR**：SEO 友好，`ssrRef` 保持状态，uniCloud 部署
+- **WebSocket**：`uni.connectSocket()` → SocketTask（微信最多 5 连接）
+- **拦截器**：`uni.addInterceptor()` 全局请求/路由拦截
+- **WebView**：`<web-view>` + `evalJS()` 双向通信，本地 HTML 放 `/hybrid/html/`
+
+### App 原生能力（`references/app-native.md`）
+
+- **登录**：`uni.login()` — 微信/QQ/Apple/一键登录(univerify)
+- **支付**：`uni.requestPayment()` — 微信/支付宝/Apple IAP/Stripe/PayPal
+- **推送**：UniPush — `uni.getPushClientId()` + `uni.onPushMessage()`
+- **分享**：`uni.share()` / `uni.shareWithSystem()` / `onShareAppMessage()`
+- **安全**：APK 加固（代码加密/防篡改/防重打包）
+- **隐私**：`androidPrivacy.json` 合规弹窗
+- **渠道**：`plus.runtime.channel` 识别分发渠道
+
+### 云服务（`references/cloud-services.md`）
+
+- **uniCloud**：云函数/云对象 + 云数据库(JQL) + 云存储 + 前端网页托管
+- **UniPush 2.0**：全平台推送，聚合厂商离线通道，免费
+- **一键登录**：运营商网关认证，0.2 分/次
+- **uni 统计 2.0**：开源全平台，数据自主可控
+- **uni-AD**：Banner/信息流/激励视频/开屏等广告变现
+
+### 媒体与文件（`references/media-file-api.md`）
+
+- 图片：选择/压缩/预览/保存/信息获取
+- 视频：选择/压缩/编辑/保存/控制
+- 音频：InnerAudioContext / BackgroundAudioManager
+- 录音：RecorderManager（mp3/aac/wav/PCM）
+- 相机：CameraContext（拍照/录像/帧数据）
+- 文件：uploadFile/downloadFile/chooseFile/FileSystemManager
+
+### 系统与设备（`references/system-device-api.md`）
+
+- 设备信息/窗口信息/应用信息/授权状态/系统设置
+- 网络状态监听、蓝牙（搜索/连接/通信）
+- 加速度计/罗盘/陀螺仪、电池、屏幕亮度
+- 导航栏/TabBar 动态控制、动画 API、键盘控制
+- DOM 查询（SelectorQuery/IntersectionObserver）
+- 物理按键拦截（onBackPress）
+
+### 原生资源配置（`references/native-resources.md`）
+
+- Android：AndroidManifest.xml、权限、ABI、URL Scheme、minSdkVersion、隐私合规、渠道包、安全加固
+- iOS：Info.plist、Entitlements(Universal Links)、dSYM 符号表
+- HarmonyOS：UTS 插件(ArkTS)、URL Scheme、App Linking
+- 地图服务：高德/百度/腾讯/Google 配置与费用
+- 微信小程序插件集成、CORS 跨域处理
+
+### 扩展组件（`references/more-components.md`）
+
+- 原生覆盖：cover-view、movable-view
+- 页面配置：page-meta、navigation-bar、custom-tab-bar、match-media
+- 媒体组件：camera、barcode、live-pusher、live-player、animation-view
+- uni-ui 补充：data-checkbox、data-select、file-picker、calendar、table、fab、indexed-list、countdown、number-box、segmented-control、drawer、pagination、breadcrumb、section、tooltip
+- nvue 高性能：list、waterfall、recycle-list
+
+---
+
+## 第七部分：社区最佳实践
+
+详见 `references/community-practices.md`。来源于 DCloud 社区精华帖和实战经验汇总。
+
+### 核心主题
+
+- **wgt 热更新**：资源包升级（跳过应用商店），官方 uni-upgrade-center 方案
+- **性能优化**：分包策略、主包瘦身、白屏优化、骨架屏、数据/渲染优化
+- **自定义导航栏**：状态栏高度适配、微信胶囊按钮计算、底部安全区
+- **Android 合规**：隐私弹窗模板模式、运行时权限申请、自查清单
+- **全局变量选型**：globalData vs Pinia vs provide/inject vs globalProperties
+- **微信登录**：code 换 token 完整流程、手机号快速验证、session 管理
+- **图片上传**：选择+压缩+批量上传 composable、多平台适配
+- **分页加载**：通用 usePagination composable、z-paging 组件推荐
+- **请求封装**：Promise 封装 + 错误处理 + API 模块化
+- **调试技巧**：condition 启动页、vConsole、平台差异调试
+
+---
+
+## 参考文件完整索引
+
+| 文件 | 覆盖内容 |
+|------|----------|
+| `references/project-setup.md` | 环境搭建（HBuilderX/CLI）、项目创建、目录结构、UI 库引入、main.js、uni.scss |
+| `references/pages-config.md` | pages.json 全部字段：globalStyle、pages、tabBar、subPackages、preloadRule、easycom、condition、networkTimeout |
+| `references/lifecycle.md` | 应用/页面/组件生命周期钩子表、参数、执行顺序、App 端特有事件 |
+| `references/api.md` | 网络请求、路由导航、UI 交互、本地存储、位置、设备信息、扫码、权限、工具方法 |
+| `references/components.md` | view、text、image、scroll-view、swiper、input、textarea、button、picker、form、navigator、video、map、canvas、rich-text、uni-ui 常用组件 |
+| `references/conditional-compilation.md` | 平台标识符、JS/CSS/Template/pages.json/静态资源条件编译、导航栏适配、安全区 |
+| `references/vue3-patterns.md` | Composition API、组合式函数、Props/Emits/v-model/provide-inject/Slots、Vue2→3 迁移 |
+| `references/advanced-features.md` | nvue、RenderJS、i18n、暗黑模式、TypeScript、环境变量、性能优化、SSR、WebSocket、拦截器、Vite 配置、WebView |
+| `references/app-native.md` | OAuth 登录、支付、推送(plus.push)、分享、安全加固、隐私合规、渠道包 |
+| `references/cloud-services.md` | UniPush 2.0（客户端+服务端）、一键登录 univerify、uni 统计 2.0、uniCloud（云函数/数据库/存储/JQL）、uni-AD 广告 |
+| `references/media-file-api.md` | 图片（选择/压缩/预览/保存）、视频（选择/压缩/编辑）、音频播放/背景音频、录音、相机、视频控制、文件上传下载 |
+| `references/system-device-api.md` | 设备/窗口/应用信息、网络、蓝牙、加速度计/罗盘/陀螺仪、电池、剪贴板、振动、导航栏/TabBar/动画/滚动/字体/键盘/DOM 查询 |
+| `references/native-resources.md` | Android（Manifest/权限/ABI/Scheme/minSDK/隐私/渠道/加固）、iOS（Info.plist/Entitlements/dSYM）、鸿蒙、地图服务、小程序插件、CORS |
+| `references/more-components.md` | cover-view、movable-view、page-meta、navigation-bar、camera、barcode、live-pusher/player、match-media、animation-view、20+ uni-ui 组件、nvue list/waterfall/recycle-list |
+| `references/debug-publish.md` | H5/小程序/App 运行调试方法、断点调试、打包发布（云打包/安心打包/离线打包）、各平台发布流程 |
+| `references/pitfalls.md` | 10 大常见问题详解：静态资源路径、样式兼容、tabBar 跳转、请求封装、条件编译语法、生命周期混淆、包体积优化、nvue 限制、第三方库选择 |
+| `references/community-practices.md` | 社区精华：wgt 热更新、性能优化（分包/白屏/数据/渲染）、自定义导航栏、Android 合规、全局变量选型、微信登录流程、图片上传压缩、分页加载组合函数、请求封装、调试技巧 |
