@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:uniapp.dcloud.net.cn)",
+      "WebSearch",
+      "Bash(wc -l c:/Users/xxy/.claude/skills/uniapp-skill/SKILL.md c:/Users/xxy/.claude/skills/uniapp-skill/references/*.md)"
+    ]
+  }
+}

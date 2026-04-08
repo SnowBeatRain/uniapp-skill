@@ -195,3 +195,88 @@ nvue 使用原生渲染（Weex 引擎），性能更好但限制更多：
 4. **ES6+ 语法**：小程序端对部分语法支持有限，避免使用过新的语法特性
 5. **第三方库选择**：优先选 uni-app 插件市场的库，npm 库需确认不依赖浏览器/Node API
 6. **全局变量**：简单数据用 `globalData`，复杂状态用 Pinia/Vuex，避免挂载到 `Vue.prototype`（Vue3 不支持）
+
+---
+
+## uni-app x 常见问题
+
+### 11. uvue CSS 子集限制
+
+**问题**：从传统 uni-app 迁移到 uni-app x 后，App 端页面布局错乱。
+
+**原因**：uvue 在 App 端**仅支持 flex 布局**，不是完整浏览器 CSS。
+
+```css
+/* 错误 —— uvue App 端不支持 */
+.container { display: block; }
+.sidebar { float: left; width: 200rpx; }
+.content { margin-left: 200rpx; }
+
+/* 正确 —— 全部使用 flex */
+.container { display: flex; flex-direction: row; }
+.sidebar { width: 200rpx; }
+.content { flex: 1; }
+```
+
+**注意**：
+- uvue 默认 `flex-direction: column`（与 Web 默认 `row` 不同）
+- Web 端不受此限制，CSS 能力完整
+- 选择器支持受限，避免复杂嵌套选择器
+- 部分 CSS 动画属性在不同平台表现有差异
+
+### 12. UTS 类型系统差异
+
+**问题**：把 TypeScript 代码直接复制到 UTS 中报类型错误。
+
+**原因**：UTS 是**强类型系统**（接近 Kotlin/Swift），不是 TypeScript 的结构类型系统。
+
+```ts
+// 错误 —— UTS 不支持 TS 的部分联合类型用法
+let value: string | number = 'hello'  // 部分场景受限
+
+// 错误 —— 隐式 any
+function process(data) { }  // UTS 需要显式类型标注
+
+// 正确
+function process(data: string): void { }
+
+// 注意 null 处理更严格
+let name: string | null = null
+// 使用前必须判空
+if (name != null) {
+  console.log(name.length)
+}
+```
+
+**最佳实践**：
+- 所有函数参数和返回值都标注类型
+- 避免使用 `any`，善用泛型
+- 4.31+ 版本已增强对象字面量类型推导，减少手动 `as` 断言
+- 4.41+ 版本支持 `import type`
+
+### 13. 传统 JS 插件在 uni-app x 中不可用
+
+**问题**：在传统 uni-app 中正常使用的 npm 包或插件市场插件，在 uni-app x 中报错。
+
+**原因**：uni-app x 编译到原生（Kotlin/Swift），JS 插件依赖的 JS 引擎/浏览器 API 不存在。
+
+**解决方案**：
+
+| 方案 | 说明 |
+|------|------|
+| 查找 UTS 版本 | 插件市场搜索同功能的 UTS 插件 |
+| 混编封装 | 用 UTS 调用原生 SDK（kt/swift/ets），4.28+ 支持直接混编 |
+| 条件编译 | 非 App 平台继续用 JS 库，App 平台用 UTS 替代 |
+| Web 端降级 | 如果只需要 H5/小程序，继续用传统 uni-app |
+
+```ts
+// 条件编译示例：不同平台用不同实现
+// #ifdef APP-PLUS
+import { nativeEncrypt } from '@/uni_modules/uts-crypto'
+export const encrypt = nativeEncrypt
+// #endif
+// #ifndef APP-PLUS
+import CryptoJS from 'crypto-js'
+export const encrypt = (data: string) => CryptoJS.AES.encrypt(data, key).toString()
+// #endif
+```

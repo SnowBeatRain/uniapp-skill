@@ -461,3 +461,81 @@ const onMessage = (e) => {
 - 小程序端需在后台配置业务域名白名单
 - 本地 HTML 文件放在 `/hybrid/html/` 或 `/static/` 目录
 - App 端可用 `evalJS()` 与 web-view 双向通信
+
+---
+
+## Vite 配置
+
+uni-app Vue3 项目基于 Vite 构建，通过 `vite.config.js` 配置。
+
+### 路径别名
+
+```js
+// vite.config.js
+import { defineConfig } from 'vite'
+import uni from '@dcloudio/vite-plugin-uni'
+import { resolve } from 'path'
+
+export default defineConfig({
+  plugins: [uni()],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src'),
+      '@components': resolve(__dirname, 'components'),
+      '@composables': resolve(__dirname, 'composables'),
+      '@store': resolve(__dirname, 'store'),
+      '@utils': resolve(__dirname, 'utils')
+    }
+  }
+})
+```
+
+### 开发代理（H5 跨域）
+
+```js
+export default defineConfig({
+  plugins: [uni()],
+  server: {
+    port: 3000,
+    proxy: {
+      '/api': {
+        target: 'https://api.example.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
+  }
+})
+```
+
+**注意**：代理仅 H5 开发环境有效。生产环境需 Nginx 反向代理或后端 CORS。
+
+### 构建优化
+
+```js
+export default defineConfig({
+  plugins: [uni()],
+  build: {
+    minify: 'terser',
+    terserOptions: {
+      compress: { drop_console: true, drop_debugger: true }
+    },
+    chunkSizeWarningLimit: 1000,
+    sourcemap: false
+  }
+})
+```
+
+### 全局常量
+
+```js
+export default defineConfig({
+  plugins: [uni()],
+  define: {
+    __APP_VERSION__: JSON.stringify(require('./package.json').version),
+    __BUILD_TIME__: JSON.stringify(new Date().toISOString())
+  }
+})
+```
+
+详细 CI/CD 与 Vite 配置见 `references/cicd.md`。
