@@ -19,7 +19,11 @@
 | `MP-KUAISHOU` | 快手小程序 |
 | `MP-LARK` | 飞书小程序 |
 | `MP` | 所有小程序 |
+| `APP-HARMONY` | 鸿蒙 App（HarmonyOS Next） |
+| `MP-HARMONY` | 鸿蒙元服务（HBuilderX 4.34+） |
 | `QUICKAPP-WEBVIEW` | 快应用通用 |
+
+**关键规则：** `APP` 包含 Android + iOS + **鸿蒙**；`APP-PLUS` **不包含**鸿蒙（仅 Android + iOS）。
 
 ## 语法格式
 
@@ -79,6 +83,37 @@ console.log('App 或 H5 专属逻辑')
     { "path": "pages/index/index" }
   ]
 }
+```
+
+## 鸿蒙平台条件编译
+
+```js
+// #ifdef APP-HARMONY
+console.log("仅鸿蒙 App 编译此代码");
+// #endif
+
+// #ifdef MP-HARMONY
+console.log("仅鸿蒙元服务编译此代码");
+// #endif
+
+// #ifdef APP
+console.log("安卓、苹果、鸿蒙都会编译（APP 包含鸿蒙）");
+// #endif
+
+// #ifdef APP-PLUS
+console.log("仅安卓和苹果编译（APP-PLUS 不包含鸿蒙）");
+// #endif
+```
+
+### 鸿蒙静态资源目录
+
+```
+static/
+├── app-harmony/        仅鸿蒙 App 编译
+│   └── icon.png
+├── mp-harmony/         仅鸿蒙元服务编译
+│   └── icon.png
+└── icon.png            所有平台
 ```
 
 ## 静态资源条件编译

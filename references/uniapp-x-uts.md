@@ -284,6 +284,52 @@ export function callNative(): string {
 
 uni-app x 从 HBuilderX 4.61 起正式支持纯血鸿蒙（HarmonyOS Next）。
 
+**详细鸿蒙开发指南见 `references/harmony-development.md`**，涵盖：环境搭建、项目配置（harmony-configs）、签名证书、权限管理、UTS 插件鸿蒙开发（arkts）、原生组件嵌入（defineNativeEmbed）、华为登录、URL Scheme/App Linking、鸿蒙元服务（MP-HARMONY）、调试与发布等完整专题。
+
+### 鸿蒙平台 UTS 插件要点
+
+**编译目标：** UTS → ArkTS/ETS
+
+**package.json 启用鸿蒙：**
+
+```json
+{
+  "uni_modules": {
+    "uni-ext-api": {
+      "uni": {
+        "apiName": {
+          "name": "apiName",
+          "app": { "arkts": true }
+        }
+      }
+    }
+  }
+}
+```
+
+**鸿蒙插件实现** (`utssdk/app-harmony/index.uts`)：
+
+```typescript
+import { productViewManager } from '@kit.StoreKit';
+import type { common, Want } from '@kit.AbilityKit';
+
+export function myNativeAPI(options: MyOptions) {
+    const context = UTSHarmony.getUIAbilityContext();
+    // 使用鸿蒙原生 Kit
+}
+```
+
+**使用鸿蒙 ohpm 第三方库：**
+
+```typescript
+// 在 utssdk/app-harmony/ 目录下可直接 import ohpm 包
+import { Pay } from '@cashier_alipay/cashiersdk'
+```
+
+**注意：** 不能在项目页面中直接使用 ohpm 包，必须通过 UTS 插件中转。UTS 插件导入必须至少 import 一次（在任意页面），否则插件代码会被 tree-shaking 移除。
+
+**调试注意：** 变量在调试时显示为 ets/ArkTS 风格；console.log 输出对象需用 `JSON.stringify()`。
+
 ### 环境要求
 
 | 依赖 | 版本要求 |

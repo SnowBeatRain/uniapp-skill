@@ -126,6 +126,44 @@ HBuilderX 中：发行 → 原生 App-云打包
 3. 集成 uni-app SDK 模块
 4. 本地编译打包
 
+### 鸿蒙 App 调试
+
+**环境要求：** HBuilderX 4.61+、DevEco Studio 5.0.7.210+、鸿蒙 API 14+（uni-app x）
+
+```
+1. 运行项目到鸿蒙设备（真机或模拟器）
+2. 点击 HBuilderX 控制台红色虫子图标 → 选择"开启调试"
+3. 首次使用会提示安装鸿蒙调试插件
+4. 在 .uts、.uvue、.ets 文件中设置断点（右键或双击行号）
+```
+
+**调试快捷键：** 继续 F8 | 单步跳过 F10 | 单步进入 F11 | 单步跳出 Shift+F11
+
+**注意事项：**
+- 变量显示为 ets/ArkTS 风格（UTS 编译到 ArkTS）
+- 断点命中初始化代码（如 onLaunch）需先点"重启应用"
+- console.log 输出对象需用 `JSON.stringify()`
+
+**联编调试（HBuilderX 4.71+）：** 支持在 uni-app x 项目和原生鸿蒙项目中同时设断点：
+
+```json
+// .hbuilderx/launch.json
+{
+  "version": "1.0",
+  "configurations": [
+    {
+      "type": "uni-app:app-harmony",
+      "debugWithNativeHarmony": true,
+      "nativeHarmonyProjectPath": "D:/native-harmony-project"
+    }
+  ]
+}
+```
+
+**鸿蒙元服务调试：** HBuilderX → 运行 → 运行到小程序模拟器 → 鸿蒙元服务
+
+详细鸿蒙开发文档见 `references/harmony-development.md`。
+
 ### 其他平台发布
 
 ```bash
@@ -136,3 +174,30 @@ npm run build:mp-qq          # QQ 小程序
 ```
 
 各平台发布流程类似微信：构建 → 对应开发者工具上传 → 平台后台审核发布。
+
+### 鸿蒙 App 发布
+
+```
+1. 授权 DCloud 为服务提供商（AGC 第三方授权链接绑定）
+2. 配置发布签名证书（.p12 + .cer + .p7b，release name）
+3. HBuilderX → 发行 → App-Harmony-本地打包 → 生成安装包
+4. 自动上传 .app 到 DCloud 开发者中心
+5. 在开发者中心完成审核提交到华为应用市场
+```
+
+**签名文件：** `.p12`（密钥库）+ `.cer`（证书）+ `.p7b`（Profile）
+- 调试签名：HBuilderX 4.61+ 可视化配置，支持自动申请
+- 发布签名：手动通过 AGC 申请，signingConfigs 中 name 必须为 "release"
+
+### 鸿蒙元服务发布
+
+```
+1. 授权 DCloud（同上）
+2. 配置发布签名证书
+3. HBuilderX → 发行 → 鸿蒙元服务
+4. 完成审核提交
+```
+
+**元服务图标要求：** 必须使用华为标准图标底板（216x216 上传开发者中心，512x512 代码中）。
+
+详细鸿蒙发布文档见 `references/harmony-development.md`。
