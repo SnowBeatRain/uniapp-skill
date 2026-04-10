@@ -17,7 +17,7 @@
 
 ```
 uniapp-skill/
-├── SKILL.md                              主入口（645 行）
+├── SKILL.md                              主入口（663 行）
 │   ├── 第一部分：学习路径规划
 │   ├── 第二部分：项目搭建
 │   ├── 第三部分：核心功能实现
@@ -25,20 +25,21 @@ uniapp-skill/
 │   ├── 第五部分：避坑指南（含 uni-app x）
 │   ├── 第六部分：进阶功能速查
 │   ├── 第七部分：社区最佳实践
-│   ├── 第八部分：uni-app x 与 UTS 插件        [新增]
-│   ├── 第九部分：测试方案                      [新增]
-│   ├── 第十部分：安全实践                      [新增]
-│   ├── 第十一部分：CI/CD 与 Vite 配置          [新增]
+│   ├── 第八部分：uni-app x 与 UTS 插件
+│   ├── 第九部分：测试方案
+│   ├── 第十部分：安全实践
+│   ├── 第十一部分：CI/CD 与 Vite 配置
 │   └── 参考文件完整索引
 │
-├── references/                           21 个参考文件（7,054 行）
+├── references/                           26 个参考文件（~10,670 行）
 │   ├── project-setup.md         (173)    环境搭建、项目创建、目录结构、UI 库
 │   ├── pages-config.md          (176)    pages.json 全部字段详解
-│   ├── lifecycle.md             (110)    应用/页面/组件生命周期
+│   ├── manifest.md              (455)    [新增] manifest.json 完整参考：核心字段、各平台配置、OAuth/Push/Maps、模板
+│   ├── lifecycle.md             (521)    应用/页面/组件生命周期、时序图、Vue3 用法、Pinia 交互、平台差异、陷阱
 │   ├── api.md                   (282)    网络请求、路由、UI、存储、位置、设备
 │   ├── components.md            (356)    内置组件 + uni-ui 常用组件
 │   ├── more-components.md       (405)    扩展组件、媒体组件、nvue 高性能组件
-│   ├── conditional-compilation.md (166)  条件编译语法与平台标识
+│   ├── conditional-compilation.md (201)  条件编译语法与平台标识
 │   ├── vue3-patterns.md         (209)    Composition API、组合函数、Vue2→3 迁移
 │   ├── advanced-features.md     (541)    nvue/RenderJS/i18n/暗黑/TS/SSR/WebSocket/Vite 配置
 │   ├── app-native.md            (265)    登录/支付/推送/分享/安全加固/隐私合规
@@ -46,18 +47,22 @@ uniapp-skill/
 │   ├── media-file-api.md        (275)    图片/视频/音频/录音/相机/文件操作
 │   ├── system-device-api.md     (374)    设备信息/蓝牙/传感器/UI控制/DOM查询
 │   ├── native-resources.md      (367)    Android/iOS/鸿蒙原生配置、地图、CORS
-│   ├── debug-publish.md         (138)    各平台运行调试与打包发布
+│   ├── debug-publish.md         (203)    各平台运行调试与打包发布
 │   ├── pitfalls.md              (282)    13 大常见问题（含 uni-app x 坑点）
 │   ├── community-practices.md  (1,048)   社区精华实战（热更新/性能/登录等）
-│   ├── uniapp-x-uts.md          (396)   [新增] uni-app x 架构/uvue/UTS/插件开发/混编/鸿蒙/迁移
-│   ├── testing.md               (422)   [新增] Vitest 单元测试 + uni-automator E2E 测试
-│   ├── security.md              (383)   [新增] Token 安全/接口签名/XSS 防护/UGC 检测
-│   └── cicd.md                  (391)   [新增] GitHub Actions/环境变量/Vite 配置/包体积管控
+│   ├── uniapp-x-uts.md          (442)    uni-app x 架构/uvue/UTS/插件开发/混编/鸿蒙/迁移
+│   ├── harmony-basics.md        (283)    [新增] 鸿蒙基础：环境搭建/项目配置/签名/条件编译/错误排查
+│   ├── harmony-development.md   (431)    鸿蒙核心开发：UTS 插件/原生组件/华为登录/URL Scheme
+│   ├── harmony-advanced.md      (254)    [新增] 鸿蒙进阶：元服务/调试/发布/地图
+│   ├── harmony-migration.md   (1,637)    [新增] 鸿蒙适配迁移：日常适配/老项目迁移/架构师笔记
+│   ├── testing.md               (422)    Vitest 单元测试 + uni-automator E2E 测试
+│   ├── security.md              (383)    Token 安全/接口签名/XSS 防护/UGC 检测
+│   └── cicd.md                  (391)    GitHub Actions/环境变量/Vite 配置/包体积管控
 │
 └── README.md                             本说明文件
 ```
 
-**总计：22 个文件，约 7,700 行**
+**总计：28 个文件，约 11,330 行**
 
 ## 知识覆盖范围
 
@@ -67,7 +72,8 @@ uniapp-skill/
 |------|----------|
 | 项目搭建 | HBuilderX / CLI 创建、目录结构、main.js、uni.scss |
 | 页面配置 | pages.json 全字段、globalStyle、tabBar、分包、easycom |
-| 生命周期 | App/页面/组件三级钩子、执行顺序、参数说明 |
+| 应用配置 | manifest.json 核心字段、各平台配置（app-plus/app-harmony/h5/小程序）、SDK 集成 |
+| 生命周期 | App/页面/组件三级钩子、执行顺序、时序图、Vue3 Composition API、Pinia 交互、平台差异、常见陷阱 |
 | 路由导航 | navigateTo/redirectTo/switchTab/reLaunch、EventChannel、全局事件 |
 | 条件编译 | #ifdef/#ifndef、平台标识符、JS/CSS/Template/pages.json/静态资源 |
 | 样式体系 | rpx 单位、page 根节点、CSS 预处理器、nvue flex 限制 |

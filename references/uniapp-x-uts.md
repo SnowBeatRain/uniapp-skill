@@ -284,7 +284,7 @@ export function callNative(): string {
 
 uni-app x 从 HBuilderX 4.61 起正式支持纯血鸿蒙（HarmonyOS Next）。
 
-**详细鸿蒙开发指南见 `references/harmony-development.md`**，涵盖：环境搭建、项目配置（harmony-configs）、签名证书、权限管理、UTS 插件鸿蒙开发（arkts）、原生组件嵌入（defineNativeEmbed）、华为登录、URL Scheme/App Linking、鸿蒙元服务（MP-HARMONY）、调试与发布等完整专题。
+**详细鸿蒙开发指南见鸿蒙系列文档**：`references/harmony-basics.md`（基础与快速参考）、`references/harmony-development.md`（核心开发：UTS 插件/原生组件/华为登录/URL Scheme）、`references/harmony-advanced.md`（元服务/调试/发布）、`references/harmony-migration.md`（适配与迁移实战）。
 
 ### 鸿蒙平台 UTS 插件要点
 

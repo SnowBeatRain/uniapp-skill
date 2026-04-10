@@ -162,7 +162,7 @@ HBuilderX 中：发行 → 原生 App-云打包
 
 **鸿蒙元服务调试：** HBuilderX → 运行 → 运行到小程序模拟器 → 鸿蒙元服务
 
-详细鸿蒙开发文档见 `references/harmony-development.md`。
+详细鸿蒙开发文档见 `references/harmony-basics.md`（基础）和 `references/harmony-development.md`（核心开发）。
 
 ### 其他平台发布
 
@@ -200,4 +200,4 @@ npm run build:mp-qq          # QQ 小程序
 
 **元服务图标要求：** 必须使用华为标准图标底板（216x216 上传开发者中心，512x512 代码中）。
 
-详细鸿蒙发布文档见 `references/harmony-development.md`。
+详细鸿蒙发布文档见 `references/harmony-advanced.md`（调试、发布、元服务）。
