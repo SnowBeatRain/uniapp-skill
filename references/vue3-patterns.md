@@ -207,3 +207,129 @@ const theme = inject('theme', 'light')  // 第二个参数为默认值
 - `Teleport`（小程序无 DOM 挂载点）
 - `Suspense`（实验性）
 - `Proxy` 在 iOS 9 / IE11 不可用（需 Vue3 兼容模式）
+
+## Vue 3.4+ 新特性
+
+### defineModel（Vue 3.4+）
+
+Vue 3.4 引入 `defineModel` 宏，大幅简化 v-model 双向绑定：
+
+```vue
+<!-- 子组件 my-input.vue（Vue 3.4+） -->
+<script setup>
+const modelValue = defineModel({ type: String, default: '' })
+// 等价于之前的 props + emit 组合
+
+// 多个 v-model
+const checked = defineModel('checked', { type: Boolean, default: false })
+</script>
+
+<template>
+  <input :value="modelValue" @input="modelValue = $event.target.value" />
+</template>
+```
+
+父组件用法不变：
+```vue
+<my-input v-model="keyword" />
+<my-checkbox v-model:checked="isChecked" />
+```
+
+### useTemplateRef（Vue 3.5+）
+
+Vue 3.5 引入的 ref 获取方式，替代 `this.$refs`：
+
+```vue
+<script setup>
+import { useTemplateRef, onMounted } from 'vue'
+
+const editorRef = useTemplateRef('editor')
+
+onMounted(() => {
+  editorRef.value?.format('bold', true)
+})
+</script>
+
+<template>
+  <editor ref="editor" />
+</template>
+```
+
+### defineOptions（Vue 3.3+）
+
+在 `<script setup>` 中定义组件选项（name、inheritAttrs 等）：
+
+```vue
+<script setup>
+defineOptions({
+  name: 'MyComponent',
+  inheritAttrs: false  // 禁止自动继承 attrs
+})
+</script>
+```
+
+### defineSlots（Vue 3.3+）
+
+为插槽提供类型提示（TypeScript 场景）：
+
+```vue
+<script setup lang="ts">
+defineSlots<{
+  header: { title: string }
+  default: {}
+  footer: { count: number }
+}>()
+</script>
+```
+
+### 动态组件 `<component :is="...">`
+
+```vue
+<template>
+  <component :is="currentTab === 'home' ? HomeComp : SettingsComp" />
+</template>
+```
+
+> **注意**：小程序端不支持动态组件，需用 `v-if`/`v-show` 替代。
+
+### onErrorCaptured（错误边界）
+
+```vue
+<script setup>
+import { onErrorCaptured, ref } from 'vue'
+
+const error = ref(null)
+
+onErrorCaptured((err, instance, info) => {
+  error.value = err
+  console.error('子组件错误:', err, info)
+  return false  // 阻止错误继续传播
+})
+</script>
+```
+
+### useId（Vue 3.5+）
+
+生成唯一 ID，适用于无障碍标签关联等场景：
+
+```vue
+<script setup>
+import { useId } from 'vue'
+const id = useId()  // 如 "v-0"
+</script>
+
+<template>
+  <label :id="`${id}-label`" :for="`${id}-input`">用户名</label>
+  <input :id="`${id}-input`" />
+</template>
+```
+
+### Vue 3.4+ 版本兼容矩阵
+
+| 特性 | 最低版本 | uni-app 支持 |
+|------|---------|-------------|
+| defineOptions | 3.3.0 | HBuilderX 4.0+ |
+| defineSlots | 3.3.0 | HBuilderX 4.0+ |
+| defineModel | 3.4.0 | HBuilderX 4.20+ |
+| useTemplateRef | 3.5.0 | 需手动确认 |
+| useId | 3.5.0 | 需手动确认 |
