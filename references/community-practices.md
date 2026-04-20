@@ -150,8 +150,48 @@ uni-app 提供了 `uni-upgrade-center`（uni_modules 插件），包含：
 
 - **图片上 CDN**：static 目录只放必要的 tabBar 图标和小图标
 - **按需引入组件**：easycom 只引入使用到的 uni-ui 组件
-- **分包异步化**（微信）：组件和 JS 可跨包异步引用
+- **分包异步化**（微信基础库 2.11.2+）：组件和 JS 可跨包异步引用
+- **组件分包引用**：主包页面引用分包组件，加载前显示占位
 - **资源目录条件编译**：`static/mp-weixin/` 只在微信端打包
+
+### 异步分包与组件分包（微信小程序）
+
+```json
+// pages.json - 独立分包（可独立运行，不依赖主包）
+{
+  "subPackages": [
+    {
+      "root": "pages-activity",
+      "pages": [{ "path": "index/index" }],
+      "independent": true
+    }
+  ]
+}
+```
+
+```json
+// 组件分包引用（主包页面使用分包中的组件）
+// page.json 或对应页面 style 中配置
+{
+  "usingComponents": {
+    "heavy-chart": "/pages-chart/components/chart"
+  },
+  "componentPlaceholder": {
+    "heavy-chart": "view"
+  }
+}
+```
+
+```js
+// JS 异步分包引用（跨包引用 JS 模块）
+// 主包中异步加载分包的模块
+const getUtils = () => import('../pages-order/utils/order-helper.js')
+
+const handleOrder = async () => {
+  const { calcPrice } = await getUtils()
+  const price = calcPrice(items)
+}
+```
 
 ### 白屏优化
 
@@ -477,6 +517,75 @@ export const useAppStore = defineStore('app', {
   }
 })
 ```
+
+### Pinia 持久化（pinia-plugin-unistorage）
+
+推荐使用 `pinia-plugin-unistorage`，基于 `uni.setStorageSync` / `uni.getStorageSync`，全平台兼容。
+
+```bash
+npm i pinia-plugin-unistorage
+```
+
+```js
+// main.js
+import { createSSRApp } from 'vue'
+import * as Pinia from 'pinia'
+import { unistorage } from 'pinia-plugin-unistorage'
+import App from './App.vue'
+
+export function createApp() {
+  const app = createSSRApp(App)
+  const store = Pinia.createPinia()
+  store.use(unistorage)
+  app.use(store)
+  return { app, Pinia }
+}
+```
+
+```js
+// store/user.js
+import { defineStore } from 'pinia'
+
+export const useUserStore = defineStore('user', {
+  state: () => ({
+    token: '',
+    userInfo: null,
+    settings: { theme: 'light', fontSize: 14 }
+  }),
+  actions: {
+    setToken(token) { this.token = token },
+    logout() {
+      this.token = ''
+      this.userInfo = null
+    }
+  },
+  unistorage: true  // 整个 store 持久化
+})
+
+// 选择性持久化（只持久化部分字段）
+export const useCartStore = defineStore('cart', {
+  state: () => ({
+    items: [],
+    tempSelected: []  // 不需要持久化
+  }),
+  unistorage: {
+    paths: ['items']  // 只持久化 items
+  }
+})
+```
+
+```js
+// Composition API 写法
+export const useSettingsStore = defineStore('settings', () => {
+  const locale = ref('zh-CN')
+  const darkMode = ref(false)
+  return { locale, darkMode }
+}, {
+  unistorage: { paths: ['locale', 'darkMode'] }
+})
+```
+
+> **注意**：不要用 `pinia-plugin-persistedstate`（依赖 `localStorage`），在小程序和 App 端不可用。`pinia-plugin-unistorage` 是 uni-app 生态专用方案。
 
 ### globalProperties（全局工具方法）
 
@@ -1046,3 +1155,90 @@ if (import.meta.env.DEV) {
 }
 // #endif
 ```
+
+---
+
+## 11. 路由守卫与权限管理
+
+### uni.addInterceptor 拦截方案（推荐）
+
+```js
+// utils/router-guard.js
+const whiteList = ['/pages/index/index', '/pages/login/login']
+
+function routeInterceptor(args) {
+  const token = uni.getStorageSync('token')
+  const url = args.url.split('?')[0]
+  if (!token && !whiteList.includes(url)) {
+    uni.navigateTo({ url: '/pages/login/login' })
+    return false
+  }
+}
+
+// 拦截所有路由方法
+;['navigateTo', 'redirectTo', 'reLaunch'].forEach(method => {
+  uni.addInterceptor(method, { invoke: routeInterceptor })
+})
+```
+
+### pages.json needLogin + uniIdRouter
+
+```json
+// pages.json — 配合 uni-id-pages 自动拦截
+{
+  "uniIdRouter": {
+    "loginPage": "uni_modules/uni-id-pages/pages/login/login-withpwd",
+    "needLogin": ["pages/user/", "pages/order/"]
+  },
+  "pages": [
+    {
+      "path": "pages/user/profile",
+      "style": { "navigationBarTitleText": "个人中心", "needLogin": true }
+    }
+  ]
+}
+```
+
+### tabBar 页面登录检查
+
+`switchTab` 拦截在部分平台有限制，建议在 tabBar 页面 `onShow` 中补充检查：
+
+```js
+import { onShow } from '@dcloudio/uni-app'
+
+onShow(() => {
+  if (!uni.getStorageSync('token')) {
+    uni.navigateTo({ url: '/pages/login/login' })
+  }
+})
+```
+
+### 角色权限控制
+
+```js
+// composables/usePermission.js
+import { useUserStore } from '@/store/user'
+
+export function usePermission() {
+  const userStore = useUserStore()
+
+  const hasRole = (role) => userStore.roles.includes(role)
+  const hasPermission = (perm) => userStore.permissions.includes(perm)
+
+  return { hasRole, hasPermission }
+}
+```
+
+```vue
+<!-- 按钮级权限控制 -->
+<template>
+  <button v-if="hasPermission('order:delete')" @click="deleteOrder">删除</button>
+</template>
+
+<script setup>
+import { usePermission } from '@/composables/usePermission'
+const { hasPermission } = usePermission()
+</script>
+```
+
+> **注意**：前端权限仅控制 UI 展示，后端接口必须做二次校验。

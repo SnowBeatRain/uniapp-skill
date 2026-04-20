@@ -100,6 +100,59 @@ uni.requestPayment({
 
 > 推荐：使用 uniCloud 的 `uniPay` 服务统一处理服务端支付逻辑。
 
+### uni-pay 2.x（uniCloud 云端一体支付）
+
+基于 uniCloud 的统一支付方案，前后端一体化，无需自建支付服务器。
+
+```js
+// 1. 安装 uni-pay 插件（从插件市场导入到 uni_modules）
+// 2. 配置 uni-pay 云端密钥（uniCloud 云函数 uni-pay-co/config.js）
+// {
+//   wxpay: { appId, mchId, v3Key, certPath... },
+//   alipay: { appId, privateKey, alipayPublicKey... }
+// }
+
+// 3. 前端创建订单并支付
+import uniPay from '@/uni_modules/uni-pay/js_sdk/uni-pay.js'
+
+const pay = uniPay.createPay({ provider: 'wxpay' })
+
+// 创建订单
+const orderRes = await pay.createOrder({
+  totalFee: 100,           // 单位：分
+  orderNo: 'ORDER_' + Date.now(),
+  subject: '商品名称',
+  body: '商品描述',
+  notifyUrl: 'https://your-server.com/pay/notify'  // 可选，默认用云函数回调
+})
+
+// 发起支付
+await pay.requestPayment({
+  provider: 'wxpay',       // wxpay | alipay
+  orderInfo: orderRes.orderInfo
+})
+
+// 4. 支付结果查询（主动轮询，作为回调补充）
+const queryRes = await pay.queryOrder({ orderNo: 'ORDER_xxx' })
+if (queryRes.status === 'SUCCESS') {
+  // 支付成功
+}
+```
+
+**uni-pay 支持的支付方式：**
+
+| 支付方式 | App | 微信小程序 | H5 |
+|---------|-----|-----------|-----|
+| 微信支付 | App支付 | JSAPI支付 | H5支付 |
+| 支付宝 | App支付 | - | 手机网站支付 |
+| Apple IAP | 内购 | - | - |
+
+**最佳实践：**
+- 支付密钥只存放在云函数端，前端不接触
+- 做好支付结果主动查询（轮询），不完全依赖异步回调
+- 订单超时未支付需做关单处理
+- 使用 `uni-pay` 的 `paySuccess` 回调云函数处理业务逻辑
+
 ---
 
 ## 推送通知

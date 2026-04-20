@@ -293,3 +293,156 @@ const showRewardedAd = () => {
 | 开屏广告 | App 启动页 | App |
 
 注册地址：https://uniad.dcloud.net.cn/
+
+---
+
+## 扩展数据库（MongoDB 版）
+
+HBuilderX 4.84+ 新增，解决传统 serverless 云数据库在稳定性、语法兼容度、独立工具管理等方面的瓶颈。
+
+### 核心优势
+
+| 维度 | 传统云数据库 | 扩展数据库 MongoDB 版 |
+|------|-------------|---------------------|
+| 底层 | DCloud 托管 JSON 文档库 | 标准 MongoDB 实例 |
+| 语法 | JQL（简化语法） | JQL + 原生 MongoDB 聚合管道 |
+| 工具 | 仅 HBuilderX / uniCloud 控制台 | 可用 Compass / mongosh 等独立工具 |
+| 稳定性 | 共享资源，偶有波动 | 独立实例，SLA 更高 |
+| 适用场景 | 轻量应用 | 中大型项目、复杂查询、高并发 |
+
+### 使用方式
+
+```js
+// 前端 JQL 用法不变
+const db = uniCloud.database()
+const { data } = await db.collection('orders')
+  .aggregate()
+  .match({ status: 'paid' })
+  .group({ _id: '$userId', total: { $sum: '$amount' } })
+  .end()
+
+// 云函数中可使用更多原生 MongoDB 操作
+const db = uniCloud.database()
+const collection = db.collection('logs')
+await collection.aggregate([
+  { $match: { level: 'error', createdAt: { $gt: lastWeek } } },
+  { $group: { _id: '$module', count: { $sum: 1 } } },
+  { $sort: { count: -1 } }
+]).end()
+```
+
+### 迁移
+
+从传统云数据库迁移到扩展数据库 MongoDB 版，JQL 代码无需修改，仅需在 uniCloud 控制台切换数据库类型并导入数据。
+
+---
+
+## uni-ai
+
+uni-ai 支持客户端通过临时 token 直连 LLM，避免云函数中转产生持续费用。
+
+### 支持的模型服务商
+
+- 阿里云百炼（通义千问系列）
+- 七牛云模型服务
+- 更多服务商持续接入中
+
+### 客户端直连模式
+
+```js
+// 获取临时 token（通过云函数，避免暴露密钥）
+const { token } = await uniCloud.callFunction({
+  name: 'get-ai-token',
+  data: { model: 'qwen-turbo' }
+})
+
+// 客户端直连 LLM（流式输出）
+const sseChannel = new uniCloud.SSEChannel()
+sseChannel.on('message', (msg) => {
+  // 逐字输出
+  answer.value += msg.data
+})
+await sseChannel.open({
+  url: 'https://ai-gateway.dcloud.net.cn/v1/chat/completions',
+  header: { Authorization: `Bearer ${token}` },
+  data: {
+    model: 'qwen-turbo',
+    messages: [{ role: 'user', content: '你好' }],
+    stream: true
+  }
+})
+```
+
+### 云函数中转模式
+
+```js
+// 云函数 get-ai-response
+const uniAI = require('@dcloudio/uni-ai')
+exports.main = async (event) => {
+  const llm = uniAI.createLLM({ provider: 'aliyun-bailian' })
+  const res = await llm.chatCompletion({
+    messages: event.messages,
+    model: 'qwen-turbo'
+  })
+  return { reply: res.choices[0].message.content }
+}
+```
+
+### uni-ai-chat 模板
+
+DCloud 提供开箱即用的 AI 对话模板（`uni-ai-chat`），包含：
+- 多轮对话 UI
+- 流式输出
+- Markdown 渲染
+- 历史记录存储
+
+---
+
+## 扩展存储
+
+HBuilderX 4.84+ 增强的云存储能力。
+
+### 新增能力
+
+| 功能 | 说明 |
+|------|------|
+| 视频转码 API | 上传视频后自动转码为多种分辨率/格式 |
+| getUploadFileOptions | 获取直传参数，支持客户端直传 CDN（绕过云函数） |
+| listFiles marker | 分页列举文件，支持 marker 游标翻页 |
+| uni 直播回放生成 | 直播结束后自动生成回放视频文件 |
+
+### 视频转码示例
+
+```js
+// 云函数中发起转码
+const result = await uniCloud.getTempFileURL({
+  fileList: [fileID]
+})
+
+// 转码任务（通过扩展存储 API）
+await uniCloud.invokeExtension('video-transcode', {
+  fileID: 'cloud://xxx/video.mp4',
+  outputs: [
+    { format: 'mp4', resolution: '720p' },
+    { format: 'mp4', resolution: '1080p' }
+  ]
+})
+```
+
+### 客户端直传
+
+```js
+// 获取直传参数（减少云函数调用）
+const uploadOptions = await uniCloud.callFunction({
+  name: 'get-upload-options',
+  data: { filename: 'photo.jpg' }
+})
+
+// 使用返回的签名参数直传到 CDN
+uni.uploadFile({
+  url: uploadOptions.uploadUrl,
+  filePath: tempFilePath,
+  name: 'file',
+  formData: uploadOptions.formData
+})
+```

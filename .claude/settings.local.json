@@ -4,7 +4,14 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:uniapp.dcloud.net.cn)",
       "WebSearch",
-      "Bash(wc -l c:/Users/xxy/.claude/skills/uniapp-skill/SKILL.md c:/Users/xxy/.claude/skills/uniapp-skill/references/*.md)"
+      "Bash(wc -l c:/Users/xxy/.claude/skills/uniapp-skill/SKILL.md c:/Users/xxy/.claude/skills/uniapp-skill/references/*.md)",
+      "Bash(find /c/Users/kele/.claude/skills/uniapp-skill -type f ! -path '*/\\\\.git/*' ! -path '*/__pycache__/*' ! -path '*/node_modules/*' -exec wc -c {} +)",
+      "Bash(find /c/Users/kele/.claude/skills/uniapp-skill/references -type f -name \"*.md\" -exec wc -l {} +)",
+      "Bash(ls -lh /c/Users/kele/.claude/skills/uniapp-skill/*.md)",
+      "Bash(wc:*)",
+      "Bash(ls /c/Users/kele/.claude/skills/uniapp-skill/references/*.md)",
+      "mcp__plugin_everything-claude-code_exa__web_search_exa",
+      "mcp__claude-buddy__buddy_react"
     ]
   }
 }

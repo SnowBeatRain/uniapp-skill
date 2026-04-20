@@ -312,6 +312,69 @@ uni_modules/
 }
 ```
 
+```json
+// H5 端地图配置（manifest.json → h5）
+{
+  "h5": {
+    "sdkConfigs": {
+      "maps": {
+        "qqmap": {
+          "key": "你的腾讯地图key"
+        }
+      }
+    }
+  }
+}
+```
+
+### 地图组件使用
+
+```vue
+<template>
+  <map
+    :latitude="location.lat"
+    :longitude="location.lng"
+    :markers="markers"
+    :scale="14"
+    show-location
+    @markertap="onMarkerTap"
+    @regionchange="onRegionChange"
+    style="width: 100%; height: 300px;"
+  />
+</template>
+
+<script setup>
+import { ref } from 'vue'
+
+const location = ref({ lat: 39.908, lng: 116.397 })
+const markers = ref([
+  {
+    id: 1,
+    latitude: 39.908,
+    longitude: 116.397,
+    title: '天安门',
+    iconPath: '/static/marker.png',
+    width: 30,
+    height: 30,
+    callout: { content: '天安门广场', display: 'ALWAYS', borderRadius: 4, padding: 8 }
+  }
+])
+
+const onMarkerTap = (e) => {
+  console.log('点击标记:', e.markerId)
+}
+</script>
+```
+
+### 平台差异注意
+
+| 平台 | 底层地图 SDK | 注意事项 |
+|------|-------------|---------|
+| App-Android | 高德地图 | 需在高德开放平台申请 key，配置 SHA1 |
+| App-iOS | 高德地图 | 需在高德开放平台申请 key，配置 Bundle ID |
+| 微信小程序 | 腾讯地图 | 自动使用，无需额外配置 key |
+| H5 | 腾讯地图/高德 | 需配置 JS API key，注意域名白名单 |
+
 > 系统定位免费但功能有限：WGS84 坐标、Android 需 GMS、无地址解析
 
 ---

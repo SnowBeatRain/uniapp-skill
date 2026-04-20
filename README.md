@@ -116,6 +116,20 @@ uniapp-skill/
 | 鸿蒙核心 | UTS 插件开发（arkts）、原生组件嵌入、华为账号登录、URL Scheme/App Linking |
 | 鸿蒙进阶 | 元服务开发（MP-HARMONY）、调试技巧、发布流程、地图服务 |
 | 鸿蒙迁移 | 日常适配指南、API 兼容速查、老项目迁移实战、架构师深度笔记（JSVM 原理/第三方库替代/CSS 差异/隐私合规/30+ FAQ），1637 行最全鸿蒙迁移参考 |
+| 鸿蒙蒸汽模式 | 5.03+ 新增，鸿蒙平台渲染性能大幅提升 |
+
+### uni-app x 最新特性（2025-2026）
+
+| 模块 | 覆盖内容 |
+|------|----------|
+| 鸿蒙蒸汽模式 | 5.03+ 渲染性能大幅提升 |
+| CSS 样式隔离策略 2.0 | 统一全平台样式隔离、external-class 规范支持 |
+| useComputedStyle | 5.03+ 监听组件根节点计算后样式变化 |
+| CSS line-height 调整 | 5.03+ 默认值改为 normal |
+| uni.showLoading 重构 | 5.03+ 基于 loading 组件，不再支持点击空白区关闭 |
+| uni.setInnerAudioOption | 5.04+ 新增 speakerOn、obeyMuteSwitch 等参数 |
+| 编译缓存机制 | 持久化编译结果，加快开发过程 |
+| 对象字面量类型优化 | 目标语言为 js 时不再进行字段值类型校验 |
 
 ### 组件体系
 
@@ -218,25 +232,30 @@ uniapp-skill/
 | 模块 | 覆盖内容 |
 |------|----------|
 | uniCloud | 云函数/云对象 + 云数据库(JQL) + 云存储 + 前端网页托管 |
+| 扩展数据库 MongoDB 版 | 4.84+ 解决 serverless 云数据库稳定性、语法兼容度、独立工具管理等瓶颈 |
+| uni-ai | 支持客户端通过临时 token 直连 LLM，避免云函数持续产生费用；支持阿里云百炼、七牛云模型服务商 |
+| 扩展存储 | 视频转码 API、getUploadFileOptions、listFiles marker、uni 直播回放生成 |
 | UniPush 2.0 | 全平台推送，客户端+服务端完整代码 |
 | 一键登录 | 运营商网关认证，换取手机号完整流程 |
 | uni 统计 | 开源全平台统计，自定义事件上报 |
-| uni-AD | Banner/信息流/激励视频/开屏等广告 |
+| uni-AD | Banner/信息流/激励视频/贴片视频/开屏等广告 |
 
 ### 社区实战
 
 | 主题 | 覆盖内容 |
 |------|----------|
 | wgt 热更新 | 服务端 API + 客户端下载安装 + uni-upgrade-center |
-| 性能优化 | 分包策略、主包瘦身、白屏骨架屏、数据/渲染优化 |
+| 性能优化 | 分包策略、主包瘦身、异步分包/组件分包、白屏骨架屏、数据/渲染优化 |
 | 自定义导航栏 | 状态栏适配、微信胶囊计算、底部安全区 |
 | Android 合规 | 隐私弹窗模板、权限申请、自查清单、常见拒审原因 |
 | 全局变量 | globalData/Pinia/provide-inject/globalProperties 选型 |
+| Pinia 持久化 | pinia-plugin-unistorage 全平台方案、选择性持久化、Composition API 写法 |
 | 微信登录 | code→token 完整流程、手机号快速验证、静默登录 |
 | 图片上传 | useImageUpload composable（选择+压缩+批量上传） |
 | 分页加载 | usePagination composable + z-paging 组件 |
 | 请求封装 | Promise 封装 + 错误处理 + API 模块化 |
 | 调试技巧 | condition 启动页、vConsole、平台差异调试 |
+| 路由守卫 | uni.addInterceptor 拦截、needLogin + uniIdRouter、tabBar 检查、角色权限控制 |
 
 ## 触发条件
 

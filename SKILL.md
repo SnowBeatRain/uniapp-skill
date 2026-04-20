@@ -1,6 +1,6 @@
 ---
 name: uniapp-skill
-description: Use this skill for any uni-app (uniapp) development task. Trigger whenever the user mentions uni-app, uniapp, uni-app x, uvue, UTS, HBuilderX, DCloud, 跨端开发, 小程序, 多端, pages.json, manifest.json, uni.request, uni.navigateTo, easycom, nvue, uts, or asks to build/debug/configure/test a project that targets WeChat Mini-Program, H5, App, Alipay, ByteDance, QQ, HarmonyOS, or other platforms via uni-app. Also use for questions about conditional compilation (#ifdef), uniCloud, uni-ui components, pinia in uniapp, uniapp project structure, uni-automator, vitest in uniapp, uniapp CI/CD, uniapp security, or UTS plugin development. Also trigger when user mentions 鸿蒙, HarmonyOS, Harmony, arkts, ets, 鸿蒙元服务, or asks about developing HarmonyOS apps or meta-services with uni-app. When in doubt, use this skill — it's better to have the context than not.
+description: 将此技能应用于所有uni-app（uniapp）开发任务。每当用户提及uni-app、uniapp、uni-app x、uvue、UTS、HBuilderX、DCloud、跨端开发、小程序、多端、pages.json、manifest.json、uni.request、uni.navigateTo、easycom、nvue、uts，或请求构建/调试/配置/测试以uni-app为目标的微信小程序、H5、App、支付宝、字节跳动、QQ、HarmonyOS或其他平台的项目时，均可触发。同样适用于关于条件编译（#ifdef）、uniCloud、uni-ui组件、uniapp中的pinia、uniapp项目结构、uni-automator、uniapp中的vitest、uniapp CI/CD、uniapp安全或UTS插件开发的问题。当用户提及鸿蒙、HarmonyOS、Harmony、arkts、ets、鸿蒙元服务，或询问如何使用uni-app开发HarmonyOS应用或元服务时，亦可触发。如有不确定，优先使用此技能——拥有上下文总比没有好。
 ---
 
 # uni-app 完整开发技能指南
@@ -97,17 +97,31 @@ uni-app 是使用 Vue.js 开发所有前端应用的框架，一套代码发布�
     "navigationBarTextStyle": "white"
   },
   "pages": [
-    { "path": "pages/index/index", "style": { "navigationBarTitleText": "首页" } }
+    {
+      "path": "pages/index/index",
+      "style": { "navigationBarTitleText": "首页" }
+    }
   ],
   "tabBar": {
-    "color": "#7A7E83", "selectedColor": "#007AFF",
+    "color": "#7A7E83",
+    "selectedColor": "#007AFF",
     "list": [
-      { "pagePath": "pages/index/index", "text": "首页", "iconPath": "static/tab/home.png", "selectedIconPath": "static/tab/home-active.png" }
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "static/tab/home.png",
+        "selectedIconPath": "static/tab/home-active.png"
+      }
     ]
   },
   "subPackages": [{ "root": "subpkg", "pages": [{ "path": "detail/detail" }] }],
-  "preloadRule": { "pages/index/index": { "network": "all", "packages": ["subpkg"] } },
-  "easycom": { "autoscan": true, "custom": { "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue" } }
+  "preloadRule": {
+    "pages/index/index": { "network": "all", "packages": ["subpkg"] }
+  },
+  "easycom": {
+    "autoscan": true,
+    "custom": { "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue" }
+  }
 }
 ```
 
@@ -121,17 +135,38 @@ uni-app 是使用 Vue.js 开发所有前端应用的框架，一套代码发布�
 
 ```vue
 <script setup>
-import { onLoad, onShow, onReady, onPullDownRefresh, onReachBottom, onShareAppMessage, onBackPress } from '@dcloudio/uni-app'
-import { ref, onMounted } from 'vue'
+import {
+  onLoad,
+  onShow,
+  onReady,
+  onPullDownRefresh,
+  onReachBottom,
+  onShareAppMessage,
+  onBackPress,
+} from "@dcloudio/uni-app";
+import { ref, onMounted } from "vue";
 
 // 页面生命周期
-onLoad((options) => { /* 接收参数，仅一次 */ })
-onShow(() => { /* 每次显示（含返回） */ })
-onReady(() => { /* DOM 可用 */ })
-onPullDownRefresh(async () => { await refresh(); uni.stopPullDownRefresh() })
-onReachBottom(() => { /* 触底加载 */ })
-onShareAppMessage(() => ({ title: '分享', path: '/pages/index/index' }))
-onBackPress(({ from }) => { return false /* true 阻止返回 */ })
+onLoad((options) => {
+  /* 接收参数，仅一次 */
+});
+onShow(() => {
+  /* 每次显示（含返回） */
+});
+onReady(() => {
+  /* DOM 可用 */
+});
+onPullDownRefresh(async () => {
+  await refresh();
+  uni.stopPullDownRefresh();
+});
+onReachBottom(() => {
+  /* 触底加载 */
+});
+onShareAppMessage(() => ({ title: "分享", path: "/pages/index/index" }));
+onBackPress(({ from }) => {
+  return false; /* true 阻止返回 */
+});
 
 // 注意：组件中只能用 Vue 钩子（onMounted 等），不能用 onLoad/onShow
 </script>
@@ -144,48 +179,79 @@ onBackPress(({ from }) => { return false /* true 阻止返回 */ })
 ### 3.2 路由导航与页面通信
 
 ```js
-uni.navigateTo({ url: '/pages/detail/detail?id=1' })   // 新页面（最多10层）
-uni.redirectTo({ url: '/pages/login/login' })            // 替换当前
-uni.switchTab({ url: '/pages/home/home' })               // tabBar 页必须用此方法
-uni.reLaunch({ url: '/pages/index/index' })              // 关闭所有重开
-uni.navigateBack({ delta: 1 })
+uni.navigateTo({ url: "/pages/detail/detail?id=1" }); // 新页面（最多10层）
+uni.redirectTo({ url: "/pages/login/login" }); // 替换当前
+uni.switchTab({ url: "/pages/home/home" }); // tabBar 页必须用此方法
+uni.reLaunch({ url: "/pages/index/index" }); // 关闭所有重开
+uni.navigateBack({ delta: 1 });
 
 // EventChannel 页面通信
 uni.navigateTo({
-  url: '/pages/child/child',
+  url: "/pages/child/child",
   events: { result: (data) => console.log(data) },
-  success: (res) => res.eventChannel.emit('init', { msg: 'hi' })
-})
+  success: (res) => res.eventChannel.emit("init", { msg: "hi" }),
+});
 
 // 全局事件
-uni.$emit('refresh', data)
-uni.$on('refresh', handler)
-uni.$off('refresh', handler)  // 页面卸载时务必移除
+uni.$emit("refresh", data);
+uni.$on("refresh", handler);
+uni.$off("refresh", handler); // 页面卸载时务必移除
 ```
 
 ### 3.3 状态管理 Pinia
 
 ```js
-// store/user.js
-import { defineStore } from 'pinia'
-export const useUserStore = defineStore('user', {
+// store/user.js — 手动持久化方式
+import { defineStore } from "pinia";
+export const useUserStore = defineStore("user", {
   state: () => ({
-    token: uni.getStorageSync('token') || '',
-    userInfo: uni.getStorageSync('userInfo') || {}
+    token: uni.getStorageSync("token") || "",
+    userInfo: uni.getStorageSync("userInfo") || {},
   }),
   getters: { isLogin: (s) => !!s.token },
   actions: {
     setLogin(token, info) {
-      this.token = token; this.userInfo = info
-      uni.setStorageSync('token', token)
-      uni.setStorageSync('userInfo', info)
+      this.token = token;
+      this.userInfo = info;
+      uni.setStorageSync("token", token);
+      uni.setStorageSync("userInfo", info);
     },
     logout() {
-      this.token = ''; this.userInfo = {}
-      uni.removeStorageSync('token'); uni.removeStorageSync('userInfo')
-      uni.reLaunch({ url: '/pages/login/login' })
-    }
-  }
+      this.token = "";
+      this.userInfo = {};
+      uni.removeStorageSync("token");
+      uni.removeStorageSync("userInfo");
+      uni.reLaunch({ url: "/pages/login/login" });
+    },
+  },
+});
+```
+
+```js
+// 推荐：使用 pinia-plugin-unistorage 自动持久化
+// main.js
+import { createSSRApp } from 'vue'
+import * as Pinia from 'pinia'
+import { unistorage } from 'pinia-plugin-unistorage'
+
+export function createApp() {
+  const app = createSSRApp(App)
+  const store = Pinia.createPinia()
+  store.use(unistorage)
+  app.use(store)
+  return { app, Pinia }
+}
+
+// store/user.js — 自动持久化
+import { defineStore } from 'pinia'
+export const useUserStore = defineStore('user', {
+  state: () => ({ token: '', userInfo: null }),
+  getters: { isLogin: (s) => !!s.token },
+  actions: {
+    setLogin(token, info) { this.token = token; this.userInfo = info },
+    logout() { this.token = ''; this.userInfo = null; uni.reLaunch({ url: '/pages/login/login' }) }
+  },
+  unistorage: { paths: ['token', 'userInfo'] }  // 选择性持久化
 })
 ```
 
@@ -193,26 +259,39 @@ export const useUserStore = defineStore('user', {
 
 ```js
 // 全局拦截器（推荐在 App.vue onLaunch 中设置）
-uni.addInterceptor('request', {
+uni.addInterceptor("request", {
   invoke(args) {
-    if (!args.url.startsWith('http')) args.url = 'https://api.example.com' + args.url
-    args.header = { ...args.header, Authorization: `Bearer ${uni.getStorageSync('token')}` }
+    if (!args.url.startsWith("http"))
+      args.url = "https://api.example.com" + args.url;
+    args.header = {
+      ...args.header,
+      Authorization: `Bearer ${uni.getStorageSync("token")}`,
+    };
   },
-  success(res) { if (res.data?.code === 401) uni.reLaunch({ url: '/pages/login/login' }) },
-  fail() { uni.showToast({ title: '网络异常', icon: 'none' }) }
-})
+  success(res) {
+    if (res.data?.code === 401) uni.reLaunch({ url: "/pages/login/login" });
+  },
+  fail() {
+    uni.showToast({ title: "网络异常", icon: "none" });
+  },
+});
 
 // 路由守卫
-uni.addInterceptor('navigateTo', {
+uni.addInterceptor("navigateTo", {
   invoke(args) {
-    if (!uni.getStorageSync('token') && args.url.includes('/pages/mine/')) {
-      uni.navigateTo({ url: '/pages/login/login' }); return false
+    if (!uni.getStorageSync("token") && args.url.includes("/pages/mine/")) {
+      uni.navigateTo({ url: "/pages/login/login" });
+      return false;
     }
-  }
-})
+  },
+});
 
 // 发起请求（全平台，勿用 axios）
-const [err, res] = await uni.request({ url: '/api/list', method: 'GET', data: { page: 1 } })
+const [err, res] = await uni.request({
+  url: "/api/list",
+  method: "GET",
+  data: { page: 1 },
+});
 ```
 
 ### 3.5 CRUD 完整示例
@@ -221,10 +300,29 @@ const [err, res] = await uni.request({ url: '/api/list', method: 'GET', data: { 
 <template>
   <view class="container">
     <uni-search-bar v-model="keyword" @confirm="onSearch" placeholder="搜索" />
-    <scroll-view scroll-y style="flex:1" @scrolltolower="loadMore" refresher-enabled :refresher-triggered="refreshing" @refresherrefresh="onRefresh">
+    <scroll-view
+      scroll-y
+      style="flex:1"
+      @scrolltolower="loadMore"
+      refresher-enabled
+      :refresher-triggered="refreshing"
+      @refresherrefresh="onRefresh"
+    >
       <uni-list>
-        <uni-swipe-action-item v-for="item in list" :key="item.id" :right-options="[{ text: '删除', style: { backgroundColor: '#dd524d' } }]" @click="deleteItem(item.id)">
-          <uni-list-item :title="item.name" :note="item.desc" clickable @click="goDetail(item.id)" />
+        <uni-swipe-action-item
+          v-for="item in list"
+          :key="item.id"
+          :right-options="[
+            { text: '删除', style: { backgroundColor: '#dd524d' } },
+          ]"
+          @click="deleteItem(item.id)"
+        >
+          <uni-list-item
+            :title="item.name"
+            :note="item.desc"
+            clickable
+            @click="goDetail(item.id)"
+          />
         </uni-swipe-action-item>
       </uni-list>
       <uni-load-more :status="loadStatus" />
@@ -234,50 +332,70 @@ const [err, res] = await uni.request({ url: '/api/list', method: 'GET', data: { 
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
+import { ref } from "vue";
+import { onLoad } from "@dcloudio/uni-app";
 
-const list = ref([])
-const page = ref(1)
-const loadStatus = ref('more')  // more | loading | noMore
-const refreshing = ref(false)
-const keyword = ref('')
+const list = ref([]);
+const page = ref(1);
+const loadStatus = ref("more"); // more | loading | noMore
+const refreshing = ref(false);
+const keyword = ref("");
 
 const fetchList = async (reset = false) => {
-  if (reset) { page.value = 1; loadStatus.value = 'more' }
-  loadStatus.value = 'loading'
-  const [err, res] = await uni.request({ url: '/api/items', data: { page: page.value, keyword: keyword.value } })
-  if (!err) {
-    const items = res.data.data
-    list.value = reset ? items : [...list.value, ...items]
-    loadStatus.value = items.length < 20 ? 'noMore' : 'more'
-    page.value++
+  if (reset) {
+    page.value = 1;
+    loadStatus.value = "more";
   }
-}
+  loadStatus.value = "loading";
+  const [err, res] = await uni.request({
+    url: "/api/items",
+    data: { page: page.value, keyword: keyword.value },
+  });
+  if (!err) {
+    const items = res.data.data;
+    list.value = reset ? items : [...list.value, ...items];
+    loadStatus.value = items.length < 20 ? "noMore" : "more";
+    page.value++;
+  }
+};
 
-const onRefresh = async () => { refreshing.value = true; await fetchList(true); refreshing.value = false }
-const loadMore = () => { if (loadStatus.value === 'more') fetchList() }
-const onSearch = () => fetchList(true)
-const goDetail = (id) => uni.navigateTo({ url: `/pages/detail/detail?id=${id}` })
+const onRefresh = async () => {
+  refreshing.value = true;
+  await fetchList(true);
+  refreshing.value = false;
+};
+const loadMore = () => {
+  if (loadStatus.value === "more") fetchList();
+};
+const onSearch = () => fetchList(true);
+const goDetail = (id) =>
+  uni.navigateTo({ url: `/pages/detail/detail?id=${id}` });
 
 const addItem = async () => {
   // 跳转到新增页面或弹窗
-  uni.navigateTo({ url: '/pages/form/form' })
-}
+  uni.navigateTo({ url: "/pages/form/form" });
+};
 
 const deleteItem = async (id) => {
-  const { confirm } = await uni.showModal({ title: '提示', content: '确认删除？' })
-  if (!confirm) return
-  await uni.request({ url: `/api/items/${id}`, method: 'DELETE' })
-  uni.showToast({ title: '已删除' })
-  list.value = list.value.filter(i => i.id !== id)
-}
+  const { confirm } = await uni.showModal({
+    title: "提示",
+    content: "确认删除？",
+  });
+  if (!confirm) return;
+  await uni.request({ url: `/api/items/${id}`, method: "DELETE" });
+  uni.showToast({ title: "已删除" });
+  list.value = list.value.filter((i) => i.id !== id);
+};
 
-onLoad(() => fetchList(true))
+onLoad(() => fetchList(true));
 </script>
 
 <style scoped>
-.container { display: flex; flex-direction: column; height: 100vh; }
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
 </style>
 ```
 
@@ -302,7 +420,9 @@ onLoad(() => fetchList(true))
 ```css
 /* rpx：750rpx = 屏幕宽度（推荐） | px：固定像素（边框等） */
 /* 不推荐 rem/em/vw/vh（小程序兼容差） */
-page { background-color: #f5f5f5; }     /* 页面根节点用 page，非 body */
+page {
+  background-color: #f5f5f5;
+} /* 页面根节点用 page，非 body */
 
 /* rpx 换算：元素 rpx = 750 × 设计稿元素 px ÷ 设计稿宽度 px */
 /* 例：375px 设计稿中 200px → 750 × 200 ÷ 375 = 400rpx */
@@ -319,22 +439,22 @@ page { background-color: #f5f5f5; }     /* 页面根节点用 page，非 body */
 
 详见 `references/debug-publish.md`。
 
-| 平台 | 运行命令 | 调试工具 |
-|------|----------|----------|
-| H5 | `npm run dev:h5` | Chrome DevTools |
-| 微信 | `npm run dev:mp-weixin` | 微信开发者工具 |
-| 支付宝 | `npm run dev:mp-alipay` | 支付宝小程序开发者工具 |
-| App | HBuilderX 运行到手机 | HBuilderX 控制台调试窗口 |
-| 鸿蒙 App | HBuilderX 运行到鸿蒙 | HBuilderX 4.61+ 调试 + DevEco |
-| 鸿蒙元服务 | HBuilderX 运行到鸿蒙元服务 | HBuilderX 控制台 |
+| 平台       | 运行命令                   | 调试工具                      |
+| ---------- | -------------------------- | ----------------------------- |
+| H5         | `npm run dev:h5`           | Chrome DevTools               |
+| 微信       | `npm run dev:mp-weixin`    | 微信开发者工具                |
+| 支付宝     | `npm run dev:mp-alipay`    | 支付宝小程序开发者工具        |
+| App        | HBuilderX 运行到手机       | HBuilderX 控制台调试窗口      |
+| 鸿蒙 App   | HBuilderX 运行到鸿蒙       | HBuilderX 4.61+ 调试 + DevEco |
+| 鸿蒙元服务 | HBuilderX 运行到鸿蒙元服务 | HBuilderX 控制台              |
 
-| 发布平台 | 构建命令 | 关键注意 |
-|----------|----------|----------|
-| H5 | `npm run build:h5` | 配 publicPath、router.base |
-| 微信 | `npm run build:mp-weixin` | 主包 ≤ 2MB，善用分包 |
-| App | 云打包 / 安心打包 | 配签名证书，安心打包更安全更快 |
-| 鸿蒙 App | 发行 → App-Harmony-本地打包 | 需签名证书(.p12+.cer+.p7b)，授权 DCloud |
-| 鸿蒙元服务 | 发行 → 鸿蒙元服务 | 需企业开发者、华为图标底板 |
+| 发布平台   | 构建命令                    | 关键注意                                |
+| ---------- | --------------------------- | --------------------------------------- |
+| H5         | `npm run build:h5`          | 配 publicPath、router.base              |
+| 微信       | `npm run build:mp-weixin`   | 主包 ≤ 2MB，善用分包                    |
+| App        | 云打包 / 安心打包           | 配签名证书，安心打包更安全更快          |
+| 鸿蒙 App   | 发行 → App-Harmony-本地打包 | 需签名证书(.p12+.cer+.p7b)，授权 DCloud |
+| 鸿蒙元服务 | 发行 → 鸿蒙元服务           | 需企业开发者、华为图标底板              |
 
 **调试技巧**：`condition` 配置直接启动到指定页面；`console.log` 直接输出到 HBuilderX 控制台
 
@@ -344,27 +464,33 @@ page { background-color: #f5f5f5; }     /* 页面根节点用 page，非 body */
 
 详见 `references/pitfalls.md`。
 
-| 问题 | 正确做法 |
-|------|----------|
-| 用 axios 发请求 | 用 `uni.request`（axios 依赖 XMLHttpRequest，小程序/App 不支持） |
-| navigateTo 跳 tabBar 页 | 用 `uni.switchTab()` |
-| 背景图用本地路径 | 小程序不支持，用网络 URL 或 base64 |
-| 组件内用 onLoad/onShow | 组件只能用 Vue 钩子（onMounted 等） |
-| 条件编译用 && | 不支持，多平台用 `\|\|` |
-| navigateTo 超 10 层 | 用 `redirectTo` 或 `reLaunch` |
-| 静态资源过大 | 主包 ≤ 2MB，图片上 CDN，善用 subPackages |
-| nvue 用 v-show | nvue 不支持，只能用 v-if |
-| H5 跨域报错 | App/小程序无此问题；H5 用后端 CORS 头或云函数代理 |
-| Vue.prototype 挂全局 | Vue3 用 `app.config.globalProperties` 或 Pinia |
-| uvue 布局错乱（uni-app x） | App 端仅支持 flex 布局，不支持 block/float/inline |
-| UTS 类型报错 | UTS 是强类型（接近 Kotlin/Swift），需显式标注所有类型 |
-| JS 插件在 uni-app x 不可用 | 查找 UTS 版本或用混编（kt/swift）封装 |
-| 鸿蒙上 plus 对象不可用 | 统一使用 uni.* API，WebView 通信用 WebviewContext.evalJs |
-| APP-PLUS 条件编译不包含鸿蒙 | 鸿蒙用 `APP-HARMONY`；如需 Android+iOS+鸿蒙用 `APP` |
-| 鸿蒙无法直接调用原生 API | 必须通过 UTS 插件（arkts: true）中转 |
-| 元服务不支持 UTS 插件 | 元服务使用 ASCF 方案，不能用 ArkTS/UTS 原生写法 |
-| 鸿蒙路径过长报错 | 项目路径控制在 ~77 字符内，总路径 ~110 字符 |
-| nvue 在鸿蒙上渲染差异 | 鸿蒙 nvue 编译为 Web 渲染，非原生渲染 |
+| 问题                         | 正确做法                                                         |
+| ---------------------------- | ---------------------------------------------------------------- |
+| 用 axios 发请求              | 用 `uni.request`（axios 依赖 XMLHttpRequest，小程序/App 不支持） |
+| navigateTo 跳 tabBar 页      | 用 `uni.switchTab()`                                             |
+| 背景图用本地路径             | 小程序不支持，用网络 URL 或 base64                               |
+| 组件内用 onLoad/onShow       | 组件只能用 Vue 钩子（onMounted 等）                              |
+| 条件编译用 &&                | 不支持，多平台用 `\|\|`                                          |
+| navigateTo 超 10 层          | 用 `redirectTo` 或 `reLaunch`                                    |
+| 静态资源过大                 | 主包 ≤ 2MB，图片上 CDN，善用 subPackages                         |
+| nvue 用 v-show               | nvue 不支持，只能用 v-if                                         |
+| H5 跨域报错                  | App/小程序无此问题；H5 用后端 CORS 头或云函数代理                |
+| Vue.prototype 挂全局         | Vue3 用 `app.config.globalProperties` 或 Pinia                   |
+| uvue 布局错乱（uni-app x）   | App 端仅支持 flex 布局，不支持 block/float/inline                |
+| UTS 类型报错                 | UTS 是强类型（接近 Kotlin/Swift），需显式标注所有类型            |
+| JS 插件在 uni-app x 不可用   | 查找 UTS 版本或用混编（kt/swift）封装                            |
+| 鸿蒙上 plus 对象不可用       | 统一使用 uni.\* API，WebView 通信用 WebviewContext.evalJs        |
+| APP-PLUS 条件编译不包含鸿蒙  | 鸿蒙用 `APP-HARMONY`；如需 Android+iOS+鸿蒙用 `APP`              |
+| 鸿蒙无法直接调用原生 API     | 必须通过 UTS 插件（arkts: true）中转                             |
+| 元服务不支持 UTS 插件        | 元服务使用 ASCF 方案，不能用 ArkTS/UTS 原生写法                  |
+| 鸿蒙路径过长报错             | 项目路径控制在 ~77 字符内，总路径 ~110 字符                      |
+| nvue 在鸿蒙上渲染差异        | 鸿蒙 nvue 编译为 Web 渲染，非原生渲染                            |
+| uni.showLoading 点击关闭失效 | 5.03+ 已改为基于 loading 组件，不再支持点击空白区关闭            |
+| iOS 平台 async/await 不可用  | HBuilderX 4.31+ 已支持 App-iOS 平台 async/await                  |
+| 编译缓存导致更新不生效       | 运行窗口勾选"清理构建缓存"或删除 unpackage 目录                  |
+| 安全软件扫描编译产物耗时     | 将项目 unpackage 目录设置为信任目录提升性能                      |
+| 对象字面量类型校验过严       | 5.03+ 目标语言为 js 时不再进行字段值类型校验                     |
+| line-height 默认值异常       | 5.03+ 默认值已改为 normal，不再是固定 1.2                        |
 
 ---
 
@@ -376,6 +502,17 @@ page { background-color: #f5f5f5; }     /* 页面根节点用 page，非 body */
 - 组件通信：Props/Emits、v-model、provide/inject、插槽
 - Vue2 → Vue3：`new Vue()` → `createSSRApp()`、`VUE_APP_*` → `VITE_*`
 - **Vue 3.4+**：`defineModel` 简化 v-model、`useTemplateRef`、`defineOptions`、`defineSlots`
+
+### uni-app x 最新特性（2025-2026 更新）
+
+- **鸿蒙蒸汽模式**（5.03+）：鸿蒙平台渲染性能大幅提升
+- **CSS 样式隔离策略 2.0**：统一全平台样式隔离策略，external-class 规范支持
+- **useComputedStyle**（5.03+）：监听组件根节点计算后样式变化（Android/iOS/鸿蒙）
+- **CSS line-height 默认值调整**：从固定 1.2 改为 normal
+- **uni.showLoading 重构**（5.03+）：基于 loading 组件，不再支持点击空白区关闭
+- **uni.setInnerAudioOption**（5.04+）：新增 speakerOn、obeyMuteSwitch 等参数
+- **编译缓存机制**：持久化编译结果到 unpackage 目录，加快开发过程
+- **对象字面量类型优化**：目标语言为 js 时不再进行字段值类型校验
 
 ### 高级功能（`references/advanced-features.md`）
 
@@ -405,7 +542,7 @@ page { background-color: #f5f5f5; }     /* 页面根节点用 page，非 body */
 ### App 原生能力（`references/app-native.md`）
 
 - **登录**：`uni.login()` — 微信/QQ/Apple/一键登录(univerify)
-- **支付**：`uni.requestPayment()` — 微信/支付宝/Apple IAP/Stripe/PayPal
+- **支付**：`uni.requestPayment()` — 微信/支付宝/Apple IAP/Stripe/PayPal；uni-pay 2.x 云端一体方案
 - **推送**：UniPush — `uni.getPushClientId()` + `uni.onPushMessage()`
 - **分享**：`uni.share()` / `uni.shareWithSystem()` / `onShareAppMessage()`
 - **安全**：APK 加固（代码加密/防篡改/防重打包）
@@ -415,10 +552,13 @@ page { background-color: #f5f5f5; }     /* 页面根节点用 page，非 body */
 ### 云服务（`references/cloud-services.md`）
 
 - **uniCloud**：云函数/云对象 + 云数据库(JQL) + 云存储 + 前端网页托管
+- **扩展数据库 MongoDB 版**（4.84+）：解决 serverless 云数据库稳定性、语法兼容度、独立工具管理等瓶颈
+- **uni-ai**：支持客户端通过临时 token 直连 LLM，避免云函数持续产生费用；支持阿里云百炼、七牛云模型服务商
+- **扩展存储**：视频转码 API、getUploadFileOptions、listFiles marker、uni 直播回放生成
 - **UniPush 2.0**：全平台推送，聚合厂商离线通道，免费
 - **一键登录**：运营商网关认证，0.2 分/次
 - **uni 统计 2.0**：开源全平台，数据自主可控
-- **uni-AD**：Banner/信息流/激励视频/开屏等广告变现
+- **uni-AD**：Banner/信息流/激励视频/贴片视频/开屏等广告变现
 
 ### 媒体与文件（`references/media-file-api.md`）
 
@@ -441,8 +581,8 @@ page { background-color: #f5f5f5; }     /* 页面根节点用 page，非 body */
 ### 原生资源配置（`references/native-resources.md`）
 
 - Android：AndroidManifest.xml、权限、ABI、URL Scheme、minSdkVersion、隐私合规、渠道包、安全加固
-- iOS：Info.plist、Entitlements(Universal Links)、dSYM 符号表
-- HarmonyOS：UTS 插件(ArkTS)、URL Scheme、App Linking
+- iOS：Info.plist、Entitlements(Universal Links)、dSYM 符号表、**Watch App 嵌入支持**（4.84+）
+- HarmonyOS：UTS 插件(ArkTS)、URL Scheme、App Linking、defineNativeEmbed 原生嵌入组件（4.66+）
 - 地图服务：高德/百度/腾讯/Google 配置与费用
 - 微信小程序插件集成、CORS 跨域处理
 
@@ -484,14 +624,16 @@ page { background-color: #f5f5f5; }     /* 页面根节点用 page，非 body */
 ### 核心主题
 
 - **wgt 热更新**：资源包升级（跳过应用商店），官方 uni-upgrade-center 方案
-- **性能优化**：分包策略、主包瘦身、白屏优化、骨架屏、数据/渲染优化
+- **性能优化**：分包策略、主包瘦身、异步分包/组件分包、白屏优化、骨架屏、数据/渲染优化
 - **自定义导航栏**：状态栏高度适配、微信胶囊按钮计算、底部安全区
 - **Android 合规**：隐私弹窗模板模式、运行时权限申请、自查清单
 - **全局变量选型**：globalData vs Pinia vs provide/inject vs globalProperties
+- **Pinia 持久化**：pinia-plugin-unistorage 全平台方案、选择性持久化
 - **微信登录**：code 换 token 完整流程、手机号快速验证、session 管理
 - **图片上传**：选择+压缩+批量上传 composable、多平台适配
 - **分页加载**：通用 usePagination composable、z-paging 组件推荐
 - **请求封装**：Promise 封装 + 错误处理 + API 模块化
+- **路由守卫**：uni.addInterceptor 拦截、needLogin + uniIdRouter、角色权限控制
 - **调试技巧**：condition 启动页、vConsole、平台差异调试
 
 ---
@@ -504,24 +646,24 @@ page { background-color: #f5f5f5; }     /* 页面根节点用 page，非 body */
 
 uni-app x 是 DCloud 下一代框架，**全原生渲染 + UTS 强类型语言**：
 
-| 维度 | 传统 uni-app | uni-app x |
-|------|-------------|-----------|
-| App 渲染 | WebView / Weex（nvue） | **原生渲染（uvue）** |
-| 编程语言 | JavaScript | **UTS（→ Kotlin / Swift / ArkTS）** |
-| 页面后缀 | `.vue` / `.nvue` | **`.uvue`** |
-| Bridge 通信 | 有（性能瓶颈） | **无（同层运行）** |
+| 维度        | 传统 uni-app           | uni-app x                           |
+| ----------- | ---------------------- | ----------------------------------- |
+| App 渲染    | WebView / Weex（nvue） | **原生渲染（uvue）**                |
+| 编程语言    | JavaScript             | **UTS（→ Kotlin / Swift / ArkTS）** |
+| 页面后缀    | `.vue` / `.nvue`       | **`.uvue`**                         |
+| Bridge 通信 | 有（性能瓶颈）         | **无（同层运行）**                  |
 
 **官方文档：** https://doc.dcloud.net.cn/uni-app-x/
 
 ### 各平台支持
 
-| 平台 | HBuilderX | 状态 |
-|------|-----------|------|
-| Android | 3.99+ | 已上线 |
-| iOS | 4.11+ | 已上线 |
-| Web | 4.0+ | 已上线 |
-| HarmonyOS | 4.61+ | 已上线 |
-| 微信小程序 | 4.41+ | 推进中 |
+| 平台       | HBuilderX | 状态   |
+| ---------- | --------- | ------ |
+| Android    | 3.99+     | 已上线 |
+| iOS        | 4.11+     | 已上线 |
+| Web        | 4.0+      | 已上线 |
+| HarmonyOS  | 4.61+     | 已上线 |
+| 微信小程序 | 4.41+     | 推进中 |
 
 ### UTS 插件开发要点
 
@@ -538,11 +680,11 @@ uni-app x 是 DCloud 下一代框架，**全原生渲染 + UTS 强类型语言**
 
 ### 版本兼容
 
-| 项目类型 | Node.js | Vite | Vue |
-|---------|---------|------|-----|
-| uni-app Vue3 | 18+ | 4.x/5.x | 3.4+ |
-| uni-app Vue2 | 14+ | 不适用 | 2.6/2.7 |
-| uni-app x | 18+ | 5.x | 3.4+（兼容层） |
+| 项目类型     | Node.js | Vite    | Vue            |
+| ------------ | ------- | ------- | -------------- |
+| uni-app Vue3 | 18+     | 4.x/5.x | 3.4+           |
+| uni-app Vue2 | 14+     | 不适用  | 2.6/2.7        |
+| uni-app x    | 18+     | 5.x     | 3.4+（兼容层） |
 
 ---
 
@@ -552,11 +694,11 @@ uni-app x 是 DCloud 下一代框架，**全原生渲染 + UTS 强类型语言**
 
 ### 测试策略
 
-| 测试类型 | 工具 | 适用场景 |
-|---------|------|---------|
-| **单元测试** | Vitest | 纯函数、composable、store、工具方法 |
-| **组件测试** | Vitest + @vue/test-utils | Vue 组件逻辑 |
-| **E2E 测试** | uni-automator + Jest | 多平台真机/模拟器自动化 |
+| 测试类型     | 工具                     | 适用场景                            |
+| ------------ | ------------------------ | ----------------------------------- |
+| **单元测试** | Vitest                   | 纯函数、composable、store、工具方法 |
+| **组件测试** | Vitest + @vue/test-utils | Vue 组件逻辑                        |
+| **E2E 测试** | uni-automator + Jest     | 多平台真机/模拟器自动化             |
 
 ### Vitest 快速配置
 
@@ -572,14 +714,14 @@ DCloud 官方 E2E 方案，支持 App / H5 / 微信小程序：
 
 ```js
 // pages/index/index.test.js
-describe('首页', () => {
-  it('列表渲染正确', async () => {
-    const page = await program.reLaunch('/pages/index/index')
-    await page.waitFor(500)
-    const items = await page.$$('.list-item')
-    expect(items.length).toBeGreaterThan(0)
-  })
-})
+describe("首页", () => {
+  it("列表渲染正确", async () => {
+    const page = await program.reLaunch("/pages/index/index");
+    await page.waitFor(500);
+    const items = await page.$$(".list-item");
+    expect(items.length).toBeGreaterThan(0);
+  });
+});
 ```
 
 ---
@@ -600,29 +742,36 @@ UGC 检测：uni-sec-check 文本/图片安全检测
 ### 加密存储示例
 
 ```js
-import CryptoJS from 'crypto-js'
-const KEY = import.meta.env.VITE_STORAGE_KEY
+import CryptoJS from "crypto-js";
+const KEY = import.meta.env.VITE_STORAGE_KEY;
 
 export function setSecure(key, value) {
-  uni.setStorageSync(key, CryptoJS.AES.encrypt(JSON.stringify(value), KEY).toString())
+  uni.setStorageSync(
+    key,
+    CryptoJS.AES.encrypt(JSON.stringify(value), KEY).toString()
+  );
 }
 
 export function getSecure(key) {
-  const enc = uni.getStorageSync(key)
-  if (!enc) return null
+  const enc = uni.getStorageSync(key);
+  if (!enc) return null;
   try {
-    return JSON.parse(CryptoJS.AES.decrypt(enc, KEY).toString(CryptoJS.enc.Utf8))
-  } catch { return null }
+    return JSON.parse(
+      CryptoJS.AES.decrypt(enc, KEY).toString(CryptoJS.enc.Utf8)
+    );
+  } catch {
+    return null;
+  }
 }
 ```
 
 ### 平台安全要点
 
-| 平台 | 要点 |
-|------|------|
-| H5 | CSP 头防 XSS；CORS 严格配置 |
-| 微信小程序 | 合法域名 HTTPS；appSecret 仅服务端使用 |
-| App | androidPrivacy.json 合规；APK 加固；敏感数据加密 |
+| 平台       | 要点                                             |
+| ---------- | ------------------------------------------------ |
+| H5         | CSP 头防 XSS；CORS 严格配置                      |
+| 微信小程序 | 合法域名 HTTPS；appSecret 仅服务端使用           |
+| App        | androidPrivacy.json 合规；APK 加固；敏感数据加密 |
 
 ---
 
@@ -666,48 +815,55 @@ VITE_API_BASE=https://api.example.com
 // vite.config.js
 export default defineConfig({
   plugins: [uni()],
-  resolve: { alias: { '@': resolve(__dirname, 'src') } },
-  server: { proxy: { '/api': { target: 'https://api.example.com', changeOrigin: true } } },
-  build: { minify: 'terser', terserOptions: { compress: { drop_console: true } } }
-})
+  resolve: { alias: { "@": resolve(__dirname, "src") } },
+  server: {
+    proxy: {
+      "/api": { target: "https://api.example.com", changeOrigin: true },
+    },
+  },
+  build: {
+    minify: "terser",
+    terserOptions: { compress: { drop_console: true } },
+  },
+});
 ```
 
 ---
 
 ## 参考文件完整索引
 
-| 文件 | 覆盖内容 |
-|------|----------|
-| `references/project-setup.md` | 环境搭建（HBuilderX/CLI）、项目创建、目录结构、UI 库引入、main.js、uni.scss |
-| `references/pages-config.md` | pages.json 全部字段：globalStyle、pages、tabBar、subPackages、preloadRule、easycom、condition、networkTimeout、**leftWindow/topWindow/rightWindow 宽屏适配、uniIdRouter 路由守卫、entryPagePath、页面动画配置** |
-| `references/lifecycle.md` | 应用/页面/组件生命周期钩子表、执行顺序、时序图、Vue3 Composition API 用法、Pinia 交互、平台差异、常见模式与陷阱 |
-| `references/api.md` | 网络请求、路由导航、UI 交互、本地存储、位置、设备信息、扫码、权限、工具方法 |
-| `references/components.md` | view、text、image、scroll-view、swiper、input、textarea、button、picker、form、navigator、video、map、canvas、rich-text、uni-ui 常用组件 |
-| `references/conditional-compilation.md` | 平台标识符、JS/CSS/Template/pages.json/静态资源条件编译、导航栏适配、安全区 |
-| `references/vue3-patterns.md` | Composition API、组合式函数、Props/Emits/v-model/provide-inject/Slots、Vue2→3 迁移、**Vue 3.4+ 新特性（defineModel、useTemplateRef、defineOptions、defineSlots、useId）** |
-| `references/advanced-features.md` | nvue、**RenderJS（深入：:change:prop 机制、动态加载第三方库）**、i18n（**locale 文件管理、pages.json %key% 语法、复数**）、**无障碍访问 a11y**、暗黑模式、TypeScript、环境变量、性能优化、SSR（**ssrRef、数据获取**）、**PWA/H5 离线策略**、WebSocket、拦截器、Vite 配置、WebView |
-| `references/app-native.md` | OAuth 登录、支付、推送(plus.push)、分享、安全加固、隐私合规、渠道包 |
-| `references/cloud-services.md` | UniPush 2.0（客户端+服务端）、一键登录 univerify、uni 统计 2.0、uniCloud（云函数/数据库/存储/JQL）、uni-AD 广告 |
-| `references/media-file-api.md` | 图片（选择/压缩/预览/保存）、视频（选择/压缩/编辑）、音频播放/背景音频、录音、相机、视频控制、文件上传下载 |
-| `references/system-device-api.md` | 设备/窗口/应用信息、网络、蓝牙、加速度计/罗盘/陀螺仪、电池、剪贴板、振动、导航栏/TabBar/动画/滚动/字体/键盘/DOM 查询 |
-| `references/native-resources.md` | Android（Manifest/权限/ABI/Scheme/minSDK/隐私/渠道/加固）、iOS（Info.plist/Entitlements/dSYM）、鸿蒙、地图服务、小程序插件、CORS |
-| `references/more-components.md` | cover-view、movable-view、page-meta、navigation-bar、camera、barcode、live-pusher/player、match-media、animation-view、20+ uni-ui 组件、nvue list/waterfall/recycle-list |
-| `references/debug-publish.md` | H5/小程序/App 运行调试方法、断点调试、打包发布（云打包/安心打包/离线打包）、各平台发布流程 |
-| `references/pitfalls.md` | 13 大常见问题详解：静态资源路径、样式兼容、tabBar 跳转、请求封装、条件编译语法、生命周期混淆、包体积优化、nvue 限制、第三方库选择、uvue CSS 限制、UTS 类型系统、JS 插件兼容 |
-| `references/community-practices.md` | 社区精华：wgt 热更新、性能优化（分包/白屏/数据/渲染）、自定义导航栏、Android 合规、全局变量选型、微信登录流程、图片上传压缩、分页加载组合函数、请求封装、调试技巧 |
-| `references/uniapp-x-uts.md` | uni-app x 架构对比、uvue 页面与 CSS 限制、UTS 语言要点与类型系统、UTS 插件开发（Android/iOS/鸿蒙）、混编（kt/swift/ets）、选型建议、版本兼容矩阵、迁移指南 |
-| `references/harmony-basics.md` | 鸿蒙基础：概述、版本兼容矩阵、环境搭建、项目配置（harmony-configs）、签名权限、条件编译速查、常见错误排查、UTS 开发环境 |
-| `references/harmony-development.md` | 鸿蒙核心开发：UTS 插件（arkts）、原生组件嵌入（defineNativeEmbed）、华为账号登录、URL Scheme/App Linking |
-| `references/harmony-advanced.md` | 鸿蒙进阶：元服务开发（MP-HARMONY）、调试、发布、地图与内置模块 |
-| `references/harmony-migration.md` | 鸿蒙适配与迁移：日常适配指南、API 兼容速查、老项目迁移实战、**架构师深度笔记（JSVM/第三方库/CSS 差异/隐私合规/代码审查/30+ FAQ）** |
-| `references/manifest.md` | manifest.json 完整参考：核心字段、各平台配置（app-plus/app-harmony/h5/mp-weixin 等）、OAuth/Push/Maps/权限、环境变量、HBuilderX 可视化编辑器、实用模板 |
-| `references/testing.md` | 测试策略（Vitest 单元测试 + uni-automator E2E）、uni 全局对象 Mock、composable/store/组件测试模式、E2E API 速查、目录结构建议 |
-| `references/security.md` | Token 安全存储（AES 加密封装）、refresh token 机制、接口签名（HMAC-SHA256）、XSS 防护（DOMPurify/CSP/转义）、UGC 安全检测、HTTPS 强制、平台安全要点 |
-| `references/cicd.md` | GitHub Actions 工作流（H5/微信小程序/多平台并行）、miniprogram-ci 上传、环境变量管理、Vite 配置（alias/proxy/构建优化/全局常量）、App 云打包/安心打包、小程序体积管控 |
-| `references/native-js.md` | **新增** Native.js 深度参考：Android/iOS 类型转换、importClass/newObject/invoke/implements 全套 API、快捷方式/拨打电话/Game Center 实战、性能优化 |
-| `references/wxs.md` | **新增** WXS/SJS/Filter 视图层脚本：跨平台语法对照、触摸跟手/输入过滤/图片懒加载实战、与 RenderJS 选型对比 |
-| `references/webview.md` | **新增** web-view 组件深度参考：双向通信（evalJS/postMessage/UniAppJSBridgeReady）、App 端动态创建 webview、层级覆盖方案、本地网页、浏览器内核 |
-| `references/subnvue.md` | **新增** subNVue 原生子窗体：页面级配置/动态创建、nvue 编写、父子通信、动画类型、侧边栏/web-view 覆盖场景 |
-| `references/share-element.md` | **新增** share-element 共享元素过渡：ident 标识、transition 配置、列表到详情完整示例、平台支持 |
-| `references/editor.md` | **新增** editor 富文本编辑器组件：EditorContext 全套 API（format/insertImage/getContents/setContents/undo/redo）、工具栏实现、事件详情 |
-| `references/datacom.md` | **新增** Datacom 数据驱动组件规范：unicloud-db 组件（插槽数据/增删改/联表查询）、uni-data-select/checkbox/picker 组件、与 uni-forms 结合 |
+| 文件                                    | 覆盖内容                                                                                                                                                                                                                                                                          |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `references/project-setup.md`           | 环境搭建（HBuilderX/CLI）、项目创建、目录结构、UI 库引入、main.js、uni.scss                                                                                                                                                                                                       |
+| `references/pages-config.md`            | pages.json 全部字段：globalStyle、pages、tabBar、subPackages、preloadRule、easycom、condition、networkTimeout、**leftWindow/topWindow/rightWindow 宽屏适配、uniIdRouter 路由守卫、entryPagePath、页面动画配置**                                                                   |
+| `references/lifecycle.md`               | 应用/页面/组件生命周期钩子表、执行顺序、时序图、Vue3 Composition API 用法、Pinia 交互、平台差异、常见模式与陷阱                                                                                                                                                                   |
+| `references/api.md`                     | 网络请求、路由导航、UI 交互、本地存储、位置、设备信息、扫码、权限、工具方法                                                                                                                                                                                                       |
+| `references/components.md`              | view、text、image、scroll-view、swiper、input、textarea、button、picker、form、navigator、video、map、canvas、rich-text、uni-ui 常用组件                                                                                                                                          |
+| `references/conditional-compilation.md` | 平台标识符、JS/CSS/Template/pages.json/静态资源条件编译、导航栏适配、安全区                                                                                                                                                                                                       |
+| `references/vue3-patterns.md`           | Composition API、组合式函数、Props/Emits/v-model/provide-inject/Slots、Vue2→3 迁移、**Vue 3.4+ 新特性（defineModel、useTemplateRef、defineOptions、defineSlots、useId）**                                                                                                         |
+| `references/advanced-features.md`       | nvue、**RenderJS（深入：:change:prop 机制、动态加载第三方库）**、i18n（**locale 文件管理、pages.json %key% 语法、复数**）、**无障碍访问 a11y**、暗黑模式、TypeScript、环境变量、性能优化、SSR（**ssrRef、数据获取**）、**PWA/H5 离线策略**、WebSocket、拦截器、Vite 配置、WebView |
+| `references/app-native.md`              | OAuth 登录、支付、推送(plus.push)、分享、安全加固、隐私合规、渠道包                                                                                                                                                                                                               |
+| `references/cloud-services.md`          | UniPush 2.0（客户端+服务端）、一键登录 univerify、uni 统计 2.0、uniCloud（云函数/数据库/存储/JQL）、uni-AD 广告                                                                                                                                                                   |
+| `references/media-file-api.md`          | 图片（选择/压缩/预览/保存）、视频（选择/压缩/编辑）、音频播放/背景音频、录音、相机、视频控制、文件上传下载                                                                                                                                                                        |
+| `references/system-device-api.md`       | 设备/窗口/应用信息、网络、蓝牙、加速度计/罗盘/陀螺仪、电池、剪贴板、振动、导航栏/TabBar/动画/滚动/字体/键盘/DOM 查询                                                                                                                                                              |
+| `references/native-resources.md`        | Android（Manifest/权限/ABI/Scheme/minSDK/隐私/渠道/加固）、iOS（Info.plist/Entitlements/dSYM）、鸿蒙、地图服务、小程序插件、CORS                                                                                                                                                  |
+| `references/more-components.md`         | cover-view、movable-view、page-meta、navigation-bar、camera、barcode、live-pusher/player、match-media、animation-view、20+ uni-ui 组件、nvue list/waterfall/recycle-list                                                                                                          |
+| `references/debug-publish.md`           | H5/小程序/App 运行调试方法、断点调试、打包发布（云打包/安心打包/离线打包）、各平台发布流程                                                                                                                                                                                        |
+| `references/pitfalls.md`                | 13 大常见问题详解：静态资源路径、样式兼容、tabBar 跳转、请求封装、条件编译语法、生命周期混淆、包体积优化、nvue 限制、第三方库选择、uvue CSS 限制、UTS 类型系统、JS 插件兼容                                                                                                       |
+| `references/community-practices.md`     | 社区精华：wgt 热更新、性能优化（分包/白屏/数据/渲染）、自定义导航栏、Android 合规、全局变量选型、微信登录流程、图片上传压缩、分页加载组合函数、请求封装、调试技巧                                                                                                                 |
+| `references/uniapp-x-uts.md`            | uni-app x 架构对比、uvue 页面与 CSS 限制、UTS 语言要点与类型系统、UTS 插件开发（Android/iOS/鸿蒙）、混编（kt/swift/ets）、选型建议、版本兼容矩阵、迁移指南                                                                                                                        |
+| `references/harmony-basics.md`          | 鸿蒙基础：概述、版本兼容矩阵、环境搭建、项目配置（harmony-configs）、签名权限、条件编译速查、常见错误排查、UTS 开发环境                                                                                                                                                           |
+| `references/harmony-development.md`     | 鸿蒙核心开发：UTS 插件（arkts）、原生组件嵌入（defineNativeEmbed）、华为账号登录、URL Scheme/App Linking                                                                                                                                                                          |
+| `references/harmony-advanced.md`        | 鸿蒙进阶：元服务开发（MP-HARMONY）、调试、发布、地图与内置模块                                                                                                                                                                                                                    |
+| `references/harmony-migration.md`       | 鸿蒙适配与迁移：日常适配指南、API 兼容速查、老项目迁移实战、**架构师深度笔记（JSVM/第三方库/CSS 差异/隐私合规/代码审查/30+ FAQ）**                                                                                                                                                |
+| `references/manifest.md`                | manifest.json 完整参考：核心字段、各平台配置（app-plus/app-harmony/h5/mp-weixin 等）、OAuth/Push/Maps/权限、环境变量、HBuilderX 可视化编辑器、实用模板                                                                                                                            |
+| `references/testing.md`                 | 测试策略（Vitest 单元测试 + uni-automator E2E）、uni 全局对象 Mock、composable/store/组件测试模式、E2E API 速查、目录结构建议                                                                                                                                                     |
+| `references/security.md`                | Token 安全存储（AES 加密封装）、refresh token 机制、接口签名（HMAC-SHA256）、XSS 防护（DOMPurify/CSP/转义）、UGC 安全检测、HTTPS 强制、平台安全要点                                                                                                                               |
+| `references/cicd.md`                    | GitHub Actions 工作流（H5/微信小程序/多平台并行）、miniprogram-ci 上传、环境变量管理、Vite 配置（alias/proxy/构建优化/全局常量）、App 云打包/安心打包、小程序体积管控                                                                                                             |
+| `references/native-js.md`               | **新增** Native.js 深度参考：Android/iOS 类型转换、importClass/newObject/invoke/implements 全套 API、快捷方式/拨打电话/Game Center 实战、性能优化                                                                                                                                 |
+| `references/wxs.md`                     | **新增** WXS/SJS/Filter 视图层脚本：跨平台语法对照、触摸跟手/输入过滤/图片懒加载实战、与 RenderJS 选型对比                                                                                                                                                                        |
+| `references/webview.md`                 | **新增** web-view 组件深度参考：双向通信（evalJS/postMessage/UniAppJSBridgeReady）、App 端动态创建 webview、层级覆盖方案、本地网页、浏览器内核                                                                                                                                    |
+| `references/subnvue.md`                 | **新增** subNVue 原生子窗体：页面级配置/动态创建、nvue 编写、父子通信、动画类型、侧边栏/web-view 覆盖场景                                                                                                                                                                         |
+| `references/share-element.md`           | **新增** share-element 共享元素过渡：ident 标识、transition 配置、列表到详情完整示例、平台支持                                                                                                                                                                                    |
+| `references/editor.md`                  | **新增** editor 富文本编辑器组件：EditorContext 全套 API（format/insertImage/getContents/setContents/undo/redo）、工具栏实现、事件详情                                                                                                                                            |
+| `references/datacom.md`                 | **新增** Datacom 数据驱动组件规范：unicloud-db 组件（插槽数据/增删改/联表查询）、uni-data-select/checkbox/picker 组件、与 uni-forms 结合                                                                                                                                          |
