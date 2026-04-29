@@ -187,7 +187,7 @@ H5 端配置：
 ```json
 {
   "mp-weixin": {
-    "appid": "wx1234567890abcdef",
+    "appid": "xxxx",
     "setting": {
       "urlCheck": false,
       "es6": true,
